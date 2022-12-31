@@ -1,10 +1,57 @@
 import { defineConfig } from 'vite'
+import type { UserConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+
+
+
+
+type PluginConfig = {
+  port: number;
+  appFolder: string;
+  entrypoint: string;
+}
+
+
+const defaultPort = 5173;
+const defaultAppFolder = "ClientApp";
+
+
+function ViteDotNetPlugin(entrypoint: string) {
+
+  return ViteDotNet({ port: defaultPort, appFolder: defaultAppFolder, entrypoint: entrypoint });
+}
+
+function ViteDotNet(config: PluginConfig) {
+
+  return {
+    name: 'ViteDotNet',
+    enforce: "post" as const,
+    config: (userConfig: UserConfig) => {
+      return {
+        server: {
+          port: config.port,
+        },
+        hmr: {
+          protocol: 'ws'
+        },
+        build: {
+          outDir: `../wwwroot/${config.appFolder}`,
+          emptyOutDir: true,
+          manifest: true,
+          rollupOptions: {
+            // overwrite default .html entry
+            input: config.entrypoint
+          }
+        }
+      }
+    }
+  };
+};
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  server: {
-    origin: 'http://localhost:5173',
+  /*server: {
+    port: 5173,
     proxy:{
       '*' : {
         target: 'https://localhost:7167',
@@ -16,11 +63,13 @@ export default defineConfig({
     }
   },
   build: {
+    outDir: "../wwwroot/ClientApp",
+    emptyOutDir: true,
     manifest: true,
     rollupOptions: {
       // overwrite default .html entry
       input: 'src/main.ts'
     }
-  },
-  plugins: [svelte()]
+  },*/
+  plugins: [svelte(), ViteDotNetPlugin("src/main.ts")]
 })

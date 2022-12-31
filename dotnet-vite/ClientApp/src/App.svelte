@@ -4,7 +4,7 @@
   import Counter from './lib/Counter.svelte'
 </script>
 
-<main>
+<div>
   <div>
     <a href="https://vitejs.dev" target="_blank" rel="noreferrer"> 
       <img src={viteLogo} class="logo" alt="Vite Logo" />
@@ -26,7 +26,7 @@
   <p class="read-the-docs">
     Click on the Vite and Svelte logos to learn more
   </p>
-</main>
+</div>
 
 <style>
   .logo {

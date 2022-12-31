@@ -5,20 +5,16 @@
 		<Nullable>enable</Nullable>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<RootNamespace>dotnet_vite</RootNamespace>
-		<SpaRoot>ClientApp\</SpaRoot>
-		<SpaProxyServerUrl>https://localhost:5173</SpaProxyServerUrl>
-		<SpaProxyLaunchCommand>npm run dev</SpaProxyLaunchCommand>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<!-- Don't publish the SPA source files, but do show them in the project files list -->
-		<Content Remove="$(SpaRoot)**" />
-		<None Remove="$(SpaRoot)**" />
-		<None Include="$(SpaRoot)**" Exclude="$(SpaRoot)node_modules\**" />
+		<Content Remove="ClientApp\**" />
+		<None Remove="ClientApp\**" />
+		<None Include="ClientApp\**" Exclude="ClientApp\node_modules\**" />
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Microsoft.AspNetCore.SpaProxy" Version="7.0.0" />
+	  <ProjectReference Include="..\ViteDotNet\ViteDotNet.csproj" />
 	</ItemGroup>
-
 </Project>

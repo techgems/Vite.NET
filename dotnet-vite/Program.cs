@@ -1,7 +1,10 @@
+using ViteDotNet;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddViteIntegration(builder.Configuration);
 
 var app = builder.Build();
 

@@ -1,0 +1,16 @@
+﻿@using ViteDotNet.Views
+@model DevelopmentViteScriptsComponent
+
+@{
+    var port = Model.IntegrationConfig.Port;
+
+    var viteDevServerScript = $"http://localhost:{port}/@vite/client";
+    var viteDevEntryPointScript = $"http://localhost:{port}/src/main.ts";
+}
+
+<environment names="Development">
+    <script type="module" src="@viteDevServerScript"></script>
+    <script type="module" src="@viteDevEntryPointScript"></script>
+</environment>
+
+<div id="@Model.IntegrationConfig.ContainerElementId"></div>

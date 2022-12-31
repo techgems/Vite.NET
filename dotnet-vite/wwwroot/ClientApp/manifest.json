@@ -1,0 +1,26 @@
+{
+  "src/assets/svelte.svg": {
+    "file": "assets/svelte.a39f39b7.svg",
+    "src": "src/assets/svelte.svg"
+  },
+  "src/assets/vite.svg": {
+    "file": "assets/vite.4a748afd.svg",
+    "src": "src/assets/vite.svg"
+  },
+  "src/main.ts": {
+    "file": "assets/main.9a277e3e.js",
+    "src": "src/main.ts",
+    "isEntry": true,
+    "css": [
+      "assets/main.3635012e.css"
+    ],
+    "assets": [
+      "assets/svelte.a39f39b7.svg",
+      "assets/vite.4a748afd.svg"
+    ]
+  },
+  "src/main.css": {
+    "file": "assets/main.3635012e.css",
+    "src": "src/main.css"
+  }
+}
