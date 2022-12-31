@@ -6,4 +6,15 @@ using System.Threading.Tasks;
 
 namespace ViteDotNet;
 
-public record IntegrationConfigModel(string RootDirectory, bool IsReact, int Port, string ContainerElementId = "app");
+public class IntegrationConfigModel
+{
+    public string Entrypoint { get; set; } = string.Empty;
+
+    public bool IsReact { get; set; }
+
+    public int Port { get; set; } = 5173;
+
+    public string RootDirectory { get; set; } = "ClientApp";
+
+    public string ContainerElementId { get; set; } = "app";
+}

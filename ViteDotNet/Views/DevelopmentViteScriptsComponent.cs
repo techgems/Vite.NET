@@ -16,14 +16,19 @@ public class DevelopmentViteScriptsComponent : RazorComponentTagHelper
 	private readonly Dictionary<string, IntegrationConfigModel> _apps;
 
     public DevelopmentViteScriptsComponent(
-        IOptions<Dictionary<string, IntegrationConfigModel>> config
+        IOptions<Dictionary<string, IntegrationConfigModel>> config,
+        IOptions<IntegrationConfigModel> simpleConfig
     ) : base("~/Views/ViteDotNet/DevelopmentViteSpaScripts.cshtml")
 	{
-		_apps = config.Value;
+        //TO DO: determine which config to use.
+
+        var x = simpleConfig.Value;
+        _apps = config.Value;
     }
 
     [HtmlAttributeName("app-name")]
     public string AppName { get; set; } = string.Empty;
+
 
     [HtmlAttributeNotBound]
     public IntegrationConfigModel IntegrationConfig { 

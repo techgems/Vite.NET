@@ -1,0 +1,16 @@
+﻿@using ViteDotNet
+@model IntegrationConfigModel
+
+@{
+    var port = Model.Port;
+
+    var reactRefreshScript = $"http://localhost:{port}/@react-refresh";
+}
+
+<script type="module">
+    import RefreshRuntime from '@reactRefreshScript'
+    RefreshRuntime.injectIntoGlobalHook(window)
+    window.$RefreshReg$ = () => { }
+    window.$RefreshSig$ = () => (type) => type
+    window.__vite_plugin_react_preamble_installed__ = true
+</script>

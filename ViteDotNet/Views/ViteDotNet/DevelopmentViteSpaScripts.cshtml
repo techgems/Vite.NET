@@ -3,14 +3,27 @@
 
 @{
     var port = Model.IntegrationConfig.Port;
+    var entrypoint = Model.IntegrationConfig.Entrypoint;
 
     var viteDevServerScript = $"http://localhost:{port}/@vite/client";
-    var viteDevEntryPointScript = $"http://localhost:{port}/src/main.ts";
+    var viteDevEntryPointScript = $"http://localhost:{port}/{entrypoint}";
+
+    //Use only if it's React.
+    var viteReactRefreshScript = $"http://localhost:{port}/@react-refresh";
 }
 
-<environment names="Development">
-    <script type="module" src="@viteDevServerScript"></script>
-    <script type="module" src="@viteDevEntryPointScript"></script>
-</environment>
+@if(Model.IntegrationConfig.IsReact) {
+    <script type="module">
+        import RefreshRuntime from '@viteReactRefreshScript'
+        RefreshRuntime.injectIntoGlobalHook(window)
+        window.$RefreshReg$ = () => { }
+        window.$RefreshSig$ = () => (type) => type
+        window.__vite_plugin_react_preamble_installed__ = true
+    </script>
+}
+
+<script type="module" src="@viteDevServerScript"></script>
+<script type="module" src="@viteDevEntryPointScript"></script>
+
 
 <div id="@Model.IntegrationConfig.ContainerElementId"></div>

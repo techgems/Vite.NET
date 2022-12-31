@@ -9,6 +9,7 @@ type PluginConfig = {
   port: number;
   appFolder: string;
   entrypoint: string;
+  prodServerOrigin: string;
 }
 
 
@@ -18,18 +19,18 @@ const defaultAppFolder = "ClientApp";
 
 function ViteDotNetPlugin(entrypoint: string) {
 
-  return ViteDotNet({ port: defaultPort, appFolder: defaultAppFolder, entrypoint: entrypoint });
+  return ViteDotNet({ port: defaultPort, appFolder: defaultAppFolder, entrypoint: entrypoint, prodServerOrigin: "" });
 }
 
 function ViteDotNet(config: PluginConfig) {
-
   return {
     name: 'ViteDotNet',
     enforce: "post" as const,
-    config: (userConfig: UserConfig) => {
+    config: (userConfig: UserConfig, { command, mode }) => {
+
       return {
         server: {
-          port: config.port,
+          origin: mode === "development" ? `http://localhost:${config.port}` : config.prodServerOrigin
         },
         hmr: {
           protocol: 'ws'
@@ -50,26 +51,5 @@ function ViteDotNet(config: PluginConfig) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  /*server: {
-    port: 5173,
-    proxy:{
-      '*' : {
-        target: 'https://localhost:7167',
-        changeOrigin: true
-      }
-    },
-    hmr: {
-      protocol: 'ws'
-    }
-  },
-  build: {
-    outDir: "../wwwroot/ClientApp",
-    emptyOutDir: true,
-    manifest: true,
-    rollupOptions: {
-      // overwrite default .html entry
-      input: 'src/main.ts'
-    }
-  },*/
   plugins: [svelte(), ViteDotNetPlugin("src/main.ts")]
 })

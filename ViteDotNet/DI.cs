@@ -8,6 +8,7 @@ public static class DependencyInjectionExtensions
     public static void AddViteIntegration(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<IManifestExtractor, ManifestExtractor>();
+        services.Configure<IntegrationConfigModel>(configuration.GetRequiredSection("ViteDotNet"));
         services.Configure<Dictionary<string, IntegrationConfigModel>>(configuration.GetRequiredSection("ViteDotNet"));
     }
 }
