@@ -33,12 +33,12 @@ function ViteDotNet(config: PluginConfig) {
       return {
         server: {
           origin: `http://localhost:${config.port}`,
-          proxy:{
+          /*proxy:{
             '*' : {
               target: 'https://localhost:7167',
               changeOrigin: true
             }
-          },
+          },*/
           hmr: {
             protocol: 'ws'
           }
