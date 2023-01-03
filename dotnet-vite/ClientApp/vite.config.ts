@@ -9,7 +9,7 @@ type PluginConfig = {
   port: number;
   appFolder: string;
   entrypoint: string;
-  prodServerOrigin: string;
+  prodServerOrigin?: string; //Not for initial release. Use when hosting app files in a remote server such as S3 or Azure Blob.
 }
 
 
@@ -19,7 +19,7 @@ const defaultAppFolder = "ClientApp";
 
 function ViteDotNetPlugin(entrypoint: string) {
 
-  return ViteDotNet({ port: defaultPort, appFolder: defaultAppFolder, entrypoint: entrypoint, prodServerOrigin: "" });
+  return ViteDotNet({ port: defaultPort, appFolder: defaultAppFolder, entrypoint: entrypoint });
 }
 
 function ViteDotNet(config: PluginConfig) {
@@ -28,9 +28,11 @@ function ViteDotNet(config: PluginConfig) {
     enforce: "post" as const,
     config: (userConfig: UserConfig, { command, mode }) => {
 
+      //https://vitejs.dev/config/server-options.html#server-origin
+
       return {
         server: {
-          origin: mode === "development" ? `http://localhost:${config.port}` : config.prodServerOrigin
+          origin: mode === "development" ? `http://localhost:${config.port}` : `/${config.appFolder}`
         },
         hmr: {
           protocol: 'ws'

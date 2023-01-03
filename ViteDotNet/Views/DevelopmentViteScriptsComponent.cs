@@ -13,6 +13,7 @@ namespace ViteDotNet.Views;
 [HtmlTargetElement("dev-vite-scripts")]
 public class DevelopmentViteScriptsComponent : RazorComponentTagHelper
 {
+    private readonly IntegrationConfigModel _simpleAppConfig;
 	private readonly Dictionary<string, IntegrationConfigModel> _apps;
 
     public DevelopmentViteScriptsComponent(
@@ -20,20 +21,37 @@ public class DevelopmentViteScriptsComponent : RazorComponentTagHelper
         IOptions<IntegrationConfigModel> simpleConfig
     ) : base("~/Views/ViteDotNet/DevelopmentViteSpaScripts.cshtml")
 	{
-        //TO DO: determine which config to use.
-
-        var x = simpleConfig.Value;
+        _simpleAppConfig = simpleConfig.Value;
         _apps = config.Value;
+    }
+
+    /// <summary>
+    /// To let the tag helper know to not use the dictionary when an unnamed app config is used.
+    /// </summary>
+    [HtmlAttributeNotBound]
+    private bool UseSimpleConfig
+    {
+        get
+        {
+            return _simpleAppConfig is not null;
+        }
     }
 
     [HtmlAttributeName("app-name")]
     public string AppName { get; set; } = string.Empty;
 
-
+    /// <summary>
+    /// The integration config to use. Selects a simple config by default, otherwise, uses the AppName to get the right configuration for the Vite App.
+    /// </summary>
     [HtmlAttributeNotBound]
     public IntegrationConfigModel IntegrationConfig { 
         get
         {
+            if(UseSimpleConfig)
+            {
+                return _simpleAppConfig;
+            }
+
             if(string.IsNullOrWhiteSpace(AppName))
             {
                 throw new InvalidOperationException("No application name was provided.");
@@ -41,7 +59,7 @@ public class DevelopmentViteScriptsComponent : RazorComponentTagHelper
 
             if(!_apps.ContainsKey(AppName))
             {
-                throw new InvalidOperationException("The application requested was not found in the configuration.");
+                throw new InvalidOperationException($"The application name {AppName} used in the tag helper was not found in the configuration.");
             }
 
             return _apps[AppName];

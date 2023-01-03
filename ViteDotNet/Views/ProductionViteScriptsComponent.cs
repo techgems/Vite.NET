@@ -12,16 +12,31 @@ namespace ViteDotNet.Views;
 [HtmlTargetElement("prod-vite-scripts")]
 public class ProductionViteScriptsComponent : RazorComponentTagHelper
 {
+    private readonly IntegrationConfigModel _simpleAppConfig;
     private readonly Dictionary<string, IntegrationConfigModel> _apps;
     private readonly IManifestExtractor _manifestExtractor;
 
     public ProductionViteScriptsComponent(
         IOptions<Dictionary<string, IntegrationConfigModel>> config,
+        IOptions<IntegrationConfigModel> simpleConfig,
         IManifestExtractor manifestExtractor
     ) : base("~/Views/ViteDotNet/ProductionViteSpaScripts.cshtml")
     {
         _apps = config.Value;
+        _simpleAppConfig = simpleConfig.Value;
         _manifestExtractor = manifestExtractor;
+    }
+
+    /// <summary>
+    /// To let the tag helper know to not use the dictionary when an unnamed app config is used.
+    /// </summary>
+    [HtmlAttributeNotBound]
+    private bool UseSimpleConfig
+    {
+        get
+        {
+            return _simpleAppConfig is not null;
+        }
     }
 
     [HtmlAttributeName("app-name")]
@@ -32,6 +47,11 @@ public class ProductionViteScriptsComponent : RazorComponentTagHelper
     {
         get
         {
+            if (UseSimpleConfig)
+            {
+                return _simpleAppConfig;
+            }
+
             if (string.IsNullOrWhiteSpace(AppName))
             {
                 throw new InvalidOperationException("No application name was provided.");

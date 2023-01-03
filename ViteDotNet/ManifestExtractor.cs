@@ -31,11 +31,11 @@ public class ManifestExtractor : IManifestExtractor
     }
 
     //TODO: Should be private.
-    public ManifestModel GetManifestFileContent(string root)
+    public ManifestModel GetManifestFileContent(string appFolder)
     {
         var rootPath = _environment.ContentRootPath; //get the root path
 
-        var fullPath = Path.Combine(rootPath, $"{root}/dist/manifest.json");
+        var fullPath = Path.Combine(rootPath, $"wwwroot/{appFolder}/manifest.json");
 
         var jsonData = File.ReadAllText(fullPath);
 
