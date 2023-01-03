@@ -32,10 +32,16 @@ function ViteDotNet(config: PluginConfig) {
 
       return {
         server: {
-          origin: mode === "development" ? `http://localhost:${config.port}` : `/${config.appFolder}`
-        },
-        hmr: {
-          protocol: 'ws'
+          origin: `http://localhost:${config.port}`,
+          proxy:{
+            '*' : {
+              target: 'https://localhost:7167',
+              changeOrigin: true
+            }
+          },
+          hmr: {
+            protocol: 'ws'
+          }
         },
         build: {
           outDir: `../wwwroot/${config.appFolder}`,
