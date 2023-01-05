@@ -30,7 +30,6 @@ public class ManifestExtractor : IManifestExtractor
         return manifest;
     }
 
-    //TODO: Should be private.
     public ManifestModel GetManifestFileContent(string appFolder)
     {
         var rootPath = _environment.ContentRootPath; //get the root path
@@ -43,7 +42,7 @@ public class ManifestExtractor : IManifestExtractor
 
         if(manifest is null)
         {
-            throw new ArgumentNullException($"The manifest file in your SPA folder was not found. We searched for it here: {fullPath}");
+            throw new ArgumentNullException($"The manifest file in your SPA folder was not found in the following path: {fullPath}. When using the <prod-vite-scripts /> tag helper, make sure that a production build has been created.");
         }
 
         var entrypoint = manifest.Single(x => x.Value.isEntry.GetValueOrDefault());

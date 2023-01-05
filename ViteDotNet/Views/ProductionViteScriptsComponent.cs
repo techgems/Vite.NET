@@ -42,11 +42,19 @@ public class ProductionViteScriptsComponent : RazorComponentTagHelper
     [HtmlAttributeName("app-name")]
     public string AppName { get; set; } = string.Empty;
 
+    [HtmlAttributeName("integration-config")]
+    public IntegrationConfigModel? Config { get; set; } = null;
+
     [HtmlAttributeNotBound]
     public IntegrationConfigModel IntegrationConfig
     {
         get
         {
+            if (Config is not null)
+            {
+                return Config;
+            }
+
             if (UseSimpleConfig)
             {
                 return _simpleAppConfig;

@@ -33,12 +33,15 @@ public class DevelopmentViteScriptsComponent : RazorComponentTagHelper
     {
         get
         {
-            return _simpleAppConfig is not null;
+            return _simpleAppConfig is not null && !string.IsNullOrWhiteSpace(_simpleAppConfig.Entrypoint);
         }
     }
 
     [HtmlAttributeName("app-name")]
     public string AppName { get; set; } = string.Empty;
+
+    [HtmlAttributeName("integration-config")]
+    public IntegrationConfigModel? Config { get; set; } = null;
 
     /// <summary>
     /// The integration config to use. Selects a simple config by default, otherwise, uses the AppName to get the right configuration for the Vite App.
@@ -47,6 +50,11 @@ public class DevelopmentViteScriptsComponent : RazorComponentTagHelper
     public IntegrationConfigModel IntegrationConfig { 
         get
         {
+            if(Config is not null)
+            {
+                return Config;
+            }
+
             if(UseSimpleConfig)
             {
                 return _simpleAppConfig;

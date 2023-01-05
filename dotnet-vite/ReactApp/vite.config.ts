@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite'
 import type { UserConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
+import react from '@vitejs/plugin-react'
 
 type PluginConfig = {
   port: number;
@@ -9,8 +9,8 @@ type PluginConfig = {
   prodServerOrigin?: string; //Not for initial release. Use when hosting app files in a remote server such as S3 or Azure Blob.
 }
 
-const defaultPort = 5173;
-const defaultAppFolder = "ClientApp";
+const defaultPort = 5174;
+const defaultAppFolder = "ReactApp";
 
 
 function ViteDotNetPlugin(entrypoint: string) {
@@ -55,5 +55,5 @@ function ViteDotNet(config: PluginConfig) {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [svelte(), ViteDotNetPlugin("src/main.ts")]
+  plugins: [react(), ViteDotNetPlugin("src/main.tsx")],
 })

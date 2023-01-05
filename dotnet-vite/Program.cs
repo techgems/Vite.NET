@@ -1,4 +1,5 @@
 using ViteDotNet;
+using ViteDotNet.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,5 +25,8 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+app.RunViteDevServer("./ClientApp");
+app.RunViteDevServer("./ReactApp");
 
 app.Run();
