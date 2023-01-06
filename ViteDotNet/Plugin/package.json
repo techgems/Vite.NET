@@ -1,0 +1,22 @@
+{
+  "name": "vite-dotnet",
+  "version": "0.1.0",
+  "description": "Integration plugin for ASP.NET Core and ViteJS",
+  "main": "index.ts",
+  "keywords": [
+    "vite",
+    "vite-integration",
+    "react",
+    "svelte",
+    "vue",
+    "solidjs",
+    "lit"
+  ],
+  "author": "TechGems",
+  "license": "MIT",
+  "devDependencies": {
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.4",
+    "vite": "^3.2.3"
+  }
+}

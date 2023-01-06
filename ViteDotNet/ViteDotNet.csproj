@@ -5,16 +5,28 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	<Version>0.1.0-beta</Version>
+	<Authors>Carlos Jimenez</Authors>
+	<Company>Tech Gems</Company>
+	<Product>Vite.NET</Product>
+	<Description>Vite.NET is an integration tool for MVC and Razor pages backends</Description>
+	<RepositoryUrl>https://github.com/techgems/Vite.NET</RepositoryUrl>
+	<RepositoryType>Public</RepositoryType>
+	<PackageTags>vite;vite-integration;react;svelte;vue;lit;solidjs</PackageTags>
+	<FileVersion>0.1.0</FileVersion>
+	<PackageId>TechGems.ViteDotNet</PackageId>
+	<PackageLicenseExpression>MIT</PackageLicenseExpression>
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="_ViewImports.cshtml" />
+	<Content Remove="_ViewImports.cshtml" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
     <PackageReference Include="TechGems.RazorComponentTagHelpers" Version="1.1.0" />
-	  <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.0" />
+	<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
