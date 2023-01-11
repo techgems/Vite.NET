@@ -18,6 +18,10 @@
 	  <ProjectReference Include="..\ViteDotNet\ViteDotNet.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="wwwroot\ClientApp\" />
+	</ItemGroup>
+
 	<Target Name="NpmInstall" Inputs="package.json" Outputs="ClientApp/node_modules/.install-stamp">
 		<Exec Command="npm install" Condition="'$(RestorePackagesWithLockFile)' != 'true'" WorkingDirectory="ClientApp" />
 

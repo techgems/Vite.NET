@@ -2,16 +2,14 @@
 @model ProductionViteScriptsComponent
 
 @{
-    var jsBundle = $"{Model.IntegrationConfig.RootDirectory}/{Model.AppManifest.file}";
+    var jsBundle = $"{Model.AppManifest.file}";
 }
 
 @if(Model.AppManifest.css is not null)
 {
     foreach (var css in Model.AppManifest.css)
     {
-        var cssFile = $"{Model.IntegrationConfig.RootDirectory}/{css}";
-
-        @: <link rel="stylesheet" href="@cssFile" />
+        @: <link rel="stylesheet" href="@css" />
     } 
 }
 

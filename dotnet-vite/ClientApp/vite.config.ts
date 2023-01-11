@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite'
 import type { UserConfig } from 'vite'
 import { svelte } from '@sveltejs/vite-plugin-svelte'
+import { basename, posix } from 'path'
 
 type PluginConfig = {
   port: number;
@@ -12,6 +13,19 @@ type PluginConfig = {
 const defaultPort = 5173;
 const defaultAppFolder = "ClientApp";
 
+function outputOptions (assetsDir: string) {
+  // Internal: Avoid nesting entrypoints unnecessarily.
+  const outputFileName = (ext: string) => ({ name }: { name: string }) => {
+    const shortName = basename(name).split('.')[0]
+    return posix.join(assetsDir, `${shortName}.[hash].${ext}`)
+  }
+
+  return {
+    entryFileNames: outputFileName('js'),
+    chunkFileNames: outputFileName('js'),
+    assetFileNames: outputFileName('[ext]'),
+  }
+}
 
 function ViteDotNetPlugin(entrypoint: string) {
 
@@ -28,6 +42,7 @@ function ViteDotNet(config: PluginConfig) {
 
       return {
         server: {
+          strictPort: true,
           origin: `http://localhost:${config.port}`,
           /*proxy:{
             '*' : {
@@ -40,12 +55,13 @@ function ViteDotNet(config: PluginConfig) {
           }
         },
         build: {
-          outDir: `../wwwroot/${config.appFolder}`,
+          outDir: `../wwwroot`,
           emptyOutDir: true,
-          manifest: true,
+          manifest: `${config.appFolder}/manifest.json`,
           rollupOptions: {
             // overwrite default .html entry
-            input: config.entrypoint
+            input: config.entrypoint,
+            output: outputOptions(config.appFolder)
           }
         }
       }
