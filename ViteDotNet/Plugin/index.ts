@@ -1,4 +1,5 @@
 import type { UserConfig } from 'vite';
+import { basename, posix } from 'path';
 
 export type PluginConfig = {
   port: number;
@@ -10,6 +11,20 @@ export type PluginConfig = {
 const defaultPort = 5173;
 const defaultAppFolder = "ClientApp";
 
+
+function outputOptions (assetsDir: string) {
+  // Internal: Avoid nesting entrypoints unnecessarily.
+  const outputFileName = (ext: string) => ({ name }: { name: string }) => {
+    const shortName = basename(name).split('.')[0]
+    return posix.join(assetsDir, `${shortName}.[hash].${ext}`)
+  }
+
+  return {
+    entryFileNames: outputFileName('js'),
+    chunkFileNames: outputFileName('js'),
+    assetFileNames: outputFileName('[ext]'),
+  }
+}
 
 export function ViteDotNetPlugin(entrypoint: string) {
 
@@ -38,12 +53,13 @@ export default function ViteDotNet(config: PluginConfig) {
           }
         },
         build: {
-          outDir: `../wwwroot/${config.appFolder}`,
-          emptyOutDir: true,
-          manifest: true,
+          outDir: `../wwwroot`,
+          emptyOutDir: false,
+          manifest: `${config.appFolder}/manifest.json`,
           rollupOptions: {
             // overwrite default .html entry
-            input: config.entrypoint
+            input: config.entrypoint,
+            output: outputOptions(config.appFolder)
           }
         }
       }
