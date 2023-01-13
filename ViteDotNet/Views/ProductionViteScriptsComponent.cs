@@ -35,7 +35,7 @@ public class ProductionViteScriptsComponent : RazorComponentTagHelper
     {
         get
         {
-            return _simpleAppConfig is not null;
+            return _simpleAppConfig is not null && !string.IsNullOrWhiteSpace(_simpleAppConfig.Entrypoint);
         }
     }
 

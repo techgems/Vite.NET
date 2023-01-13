@@ -1,18 +1,23 @@
 ﻿@using ViteDotNet.Views
 @model ProductionViteScriptsComponent
 
-@{
-    var jsBundle = $"{Model.AppManifest.file}";
-}
-
-@if(Model.AppManifest.css is not null)
+@if(Model.AppManifest is null)
 {
-    foreach (var css in Model.AppManifest.css)
-    {
-        @: <link rel="stylesheet" href="@css" />
-    } 
+    <div>An error ocurred. Either a production build has not been created or the configuration points to a non existing manifest file.</div>
 }
+else
+{
+    var jsBundle = $"{Model.AppManifest.file}";
 
-<script type="module" src="@jsBundle"></script>
+    if (Model.AppManifest.css is not null)
+    {
+        foreach (var css in Model.AppManifest.css)
+        {
+            @: <link rel="stylesheet" href="@css" />
+        }
+    }
 
-<div id="@Model.IntegrationConfig.ContainerElementId"></div>
+    <script type="module" src="@jsBundle"></script>
+
+    <div id="@Model.IntegrationConfig.ContainerElementId"></div>
+}
