@@ -3,7 +3,10 @@
 
 @if(Model.AppManifest is null)
 {
-    <div>An error ocurred. Either a production build has not been created or the configuration points to a non existing manifest file.</div>
+    <div style="margin: 0 auto; width: 40%; margin-top: 50px; font-family: Inter, Avenir, Helvetica, Arial, sans-serif; color: #213547;">
+        <h1 style="font-size: 3.2em; font-weight: bold;">Production Bundle not found</h1>
+        <p>An error has ocurred. Either a production build has not been created or the configuration points to a non existing manifest file. Make sure that your configured app directory is typed correctly.</p>
+    </div>
 }
 else
 {
