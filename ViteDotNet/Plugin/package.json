@@ -1,8 +1,8 @@
 {
   "name": "vite-dotnet",
-  "version": "0.2.0",
+  "version": "0.2.8",
   "description": "Integration plugin for ASP.NET Core and ViteJS",
-  "main": "index.ts",
+  "main": "lib/index.js",
   "keywords": [
     "vite",
     "vite-integration",
@@ -12,8 +12,18 @@
     "solidjs",
     "lit"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/techgems/Vite.NET"
+  },
+  "type": "module",
+  "files": ["lib/**/*"],
+  "types": "lib/index.d.ts",
   "author": "TechGems",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc"
+  },
   "devDependencies": {
     "@types/node": "^18.11.18",
     "tslib": "^2.4.0",

@@ -8,10 +8,6 @@ export type PluginConfig = {
   prodServerOrigin?: string; //Not for initial release. Use when hosting app files in a remote server such as S3 or Azure Blob.
 }
 
-const defaultPort = 5173;
-const defaultAppFolder = "ClientApp";
-
-
 function outputOptions (assetsDir: string) {
   // Internal: Avoid nesting entrypoints unnecessarily.
   const outputFileName = (ext: string) => ({ name }: { name: string }) => {
@@ -26,16 +22,15 @@ function outputOptions (assetsDir: string) {
   }
 }
 
-export function ViteDotNetPlugin(entrypoint: string) {
-
-  return ViteDotNet({ port: defaultPort, appFolder: defaultAppFolder, entrypoint: entrypoint });
+export default function ViteDotNetPlugin(entrypoint: string, port: number = 5173, appFolder: string = "ClientApp") {
+  return ViteDotNet({ port, appFolder: appFolder, entrypoint: entrypoint });
 }
 
-export default function ViteDotNet(config: PluginConfig) {
+function ViteDotNet(config: PluginConfig) {
   return {
     name: 'ViteDotNet',
     enforce: "post" as const,
-    config: (userConfig: UserConfig, { command, mode }) => {
+    config: (userConfig: UserConfig/*, { command, mode }*/) => {
 
       //https://vitejs.dev/config/server-options.html#server-origin
 
