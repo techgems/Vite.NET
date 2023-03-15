@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
 	<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>0.1.0-beta</Version>
+	<Version>0.1.0</Version>
 	<Authors>Carlos Jimenez</Authors>
 	<Company>Tech Gems</Company>
 	<Product>Vite.NET</Product>

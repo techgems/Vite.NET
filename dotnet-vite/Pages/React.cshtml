@@ -1,10 +1,20 @@
 ﻿@page
 @model dotnet_vite.Pages.ReactModel
+@using ViteDotNet;
 @{
     Layout = null;
+
+    var config = new IntegrationConfigModel()
+    {
+        ContainerElementId = "root",
+        IsReact = true,
+        Entrypoint = "src/app.tsx",
+        Port = 5173,
+        RootDirectory = "ReactApp"
+    };
 }
 
-<dev-vite-scripts app-name="ReactApp" />
+<dev-vite-scripts integration-config="config" />
 
 @*
     <dev-vite-scripts app-name="ReactApp" />
