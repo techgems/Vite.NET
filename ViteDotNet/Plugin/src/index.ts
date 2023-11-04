@@ -10,7 +10,7 @@ export type PluginConfig = {
 
 function outputOptions (assetsDir: string) {
   // Internal: Avoid nesting entrypoints unnecessarily.
-  const outputFileName = (ext: string) => ({ name }: { name: string }) => {
+  const outputFileName = (ext: string) => ({ name }: { name: string | undefined }) => {
     const shortName = basename(name).split('.')[0]
     return posix.join(assetsDir, `${shortName}.[hash].${ext}`)
   }
