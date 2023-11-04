@@ -49,7 +49,7 @@ function ViteDotNet(config: PluginConfig) {
         },
         build: {
           outDir: `../wwwroot`,
-          emptyOutDir: false,
+          emptyOutDir: true,
           manifest: `${config.appFolder}/manifest.json`,
           rollupOptions: {
             // overwrite default .html entry
