@@ -22,23 +22,68 @@
     </script>
 }
 
-<script type="module" src="@viteDevServerScript"></script>
-<script type="module" src="@viteDevEntryPointScript"></script>
-
-
 <div id="@Model.IntegrationConfig.ContainerElementId"></div>
 
 <script>
-    setTimeout(() => {
+    const script1Url = "@viteDevServerScript";
+    const script2Url = "@viteDevEntryPointScript";
+    const maxAttempts = 20;
+    const retryInterval = 100; // Retry every 100 milliseconds
+    // Since fetching the script takes significant time then in reality all attempts will take much longer than 20 * 100 = 2000 ms.
+    // Therefore 20 attempt is enough.
+
+    let attempts = 0;
+    
+    function addScriptToDocument(scriptUrl) {
+        const script = document.createElement("script");
+        script.src = scriptUrl;
+        script.type = "module";
+        document.head.appendChild(script);
+    }
+    
+    function runScriptsLoadedCheck() {
+        setTimeout(checkScriptsLoaded, 3000);
+    }
+
+    function checkScriptsLoaded() {
         const container = document.getElementById("@Model.IntegrationConfig.ContainerElementId");
 
         if (!container.hasChildNodes()) {
             container.innerHTML = `
-                <div style="margin: 0 auto; width: 40%; margin-top: 50px; font-family: Inter, Avenir, Helvetica, Arial, sans-serif; color: #213547;">
-                     <h1 style="font-size: 3.2em; font-weight: bold;">Vite Dev Server Not Found</h1>
-                     <p>Oops! It looks like the Vite dev server endpoint couldn't be reached. Check that the Dev server is running or that the dev server endpoint is referenced correctly in the config.</p>
-                </div>
-            `;
+                    <div style="margin: 0 auto; width: 40%; margin-top: 50px; font-family: Inter, Avenir, Helvetica, Arial, sans-serif; color: #213547;">
+                         <h1 style="font-size: 3.2em; font-weight: bold;">Vite Dev Server Not Found</h1>
+                         <p>Oops! It looks like the Vite dev server endpoint couldn't be reached. Check that the Dev server is running or that the dev server endpoint is referenced correctly in the config.</p>
+                    </div>
+                `;
         }
-    }, 3000);
+    }
+
+    function addScriptsToDocument() {
+        attempts++;
+
+        if (attempts <= maxAttempts) {
+            // Try to download the script and only when it's succeeded add all scripts to the document.
+            fetch(script2Url)
+                .then((response) => {
+                    if (response.ok) {
+                        console.log(`Script ${script2Url} downloaded successfully after ${attempts} attempts.`);
+                        addScriptToDocument(script1Url);
+                        addScriptToDocument(script2Url);
+                        runScriptsLoadedCheck();
+                    } else {
+                        console.error(`Error downloading script ${script2Url} after ${attempts} attempts. Retrying in ${retryInterval / 1000} seconds...`);
+                        setTimeout(addScriptsToDocument, retryInterval);
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error downloading script ${script2Url} after ${attempts} attempts. Retrying in ${retryInterval / 1000} seconds...`);
+                    setTimeout(addScriptsToDocument, retryInterval);
+                });
+        } else {
+            console.error(`Failed to download script ${script2Url} after maximum attempts.`);
+            checkScriptsLoaded();
+        }
+    }
+
+    addScriptsToDocument();
 </script>
