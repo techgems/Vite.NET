@@ -36,7 +36,9 @@ function ViteDotNet(config: PluginConfig) {
 
       return {
         server: {
-          origin: `http://localhost:${config.port}`,
+          origin: `http://localhost:${config.port}`, //For assets only.
+          port: config.port,
+          strictPort: true,
           /*proxy:{
             '*' : {
               target: 'https://localhost:7167',
