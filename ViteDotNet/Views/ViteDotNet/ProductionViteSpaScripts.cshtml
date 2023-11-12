@@ -16,11 +16,11 @@ else
     {
         foreach (var css in Model.AppManifest.css)
         {
-            @: <link rel="stylesheet" href="@css" />
+            @: <link rel="stylesheet" href="/@css" />
         }
     }
 
-    <script type="module" src="@jsBundle"></script>
+    <script type="module" src="/@jsBundle"></script>
 
     <div id="@Model.IntegrationConfig.ContainerElementId"></div>
 }
