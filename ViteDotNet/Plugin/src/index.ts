@@ -1,5 +1,5 @@
 import { writeFileSync, mkdirSync } from 'fs';
-import { basename, join, posix, resolve } from 'path';
+import { basename, join, resolve } from 'path';
 import { version as viteVersion } from 'vite';
 
 export type PluginConfig = {
@@ -14,11 +14,12 @@ function retrieveAppFolder(): string {
   return currentDir!;
 }
 
-function outputOptions(assetsDir: string) {
-  // Internal: Avoid nesting entrypoints unnecessarily.
+function outputOptions() {
+  // Internal: Avoid nesting entrypoints unnecessarily. The bundle already lands in the app's own
+  // folder (build.outDir is ../wwwroot/{appFolder}), so file names carry no directory prefix.
   const outputFileName = (ext: string) => ({ name }: { name: string | undefined }) => {
     const shortName = basename(name!).split('.')[0];
-    return posix.join(assetsDir, `${shortName}.[hash].${ext}`);
+    return `${shortName}.[hash].${ext}`;
   };
 
   return {
@@ -64,21 +65,27 @@ function ViteDotNet(plugConfig: PluginConfig) {
       // Rollup context does not), so React detection happens once and is reused everywhere.
       isReact = isReactApp(config.plugins);
     },
-    config: () => {
+    config: (_userConfig: any, env: { command: string }) => {
       const currentDir = retrieveAppFolder();
 
       return {
+        // Each app owns its own output folder, so `emptyOutDir` only ever clears that app's assets
+        // and multiple SPAs can build into the same wwwroot without wiping each other. The build
+        // `base` makes every URL the bundle resolves at runtime (dynamic import chunks, files copied
+        // from public/, url() references in css) point at /{appFolder}/. It is only applied to the
+        // build because in dev the assets are served from the Vite dev server's root.
+        ...(env.command === 'build' ? { base: `/${currentDir}/` } : {}),
         server: {
           ...websocketServerOptions()
         },
         build: {
-          outDir: `../wwwroot`,
+          outDir: `../wwwroot/${currentDir}`,
           emptyOutDir: true,
-          manifest: `${currentDir}/manifest.json`,
+          manifest: `manifest.json`,
           rollupOptions: {
             // overwrite default .html entry
             input: plugConfig.entrypoint,
-            output: outputOptions(currentDir)
+            output: outputOptions()
           }
         }
       };
@@ -98,7 +105,7 @@ function ViteDotNet(plugConfig: PluginConfig) {
         };
 
         // Write the dev manifest into ../wwwroot/{appName} so it lives alongside the
-        // production build output (outDir is ../wwwroot) rather than in the dist folder.
+        // production build output (outDir is ../wwwroot/{appName}) rather than in the dist folder.
         const outputDir = resolve(process.cwd(), '..', 'wwwroot', currentDir);
         mkdirSync(outputDir, { recursive: true });
 
@@ -113,9 +120,8 @@ function ViteDotNet(plugConfig: PluginConfig) {
     },
     generateBundle(this: any) {
       // Emit the production integration metadata alongside Vite's own manifest.json so the
-      // backend can read containerElementId/isReact without any hand-written config.
-      const currentDir = retrieveAppFolder();
-
+      // backend can read containerElementId/isReact without any hand-written config. Both land at
+      // the root of outDir, which is the app's own folder inside wwwroot.
       const prodManifest = {
         entrypoint: plugConfig.entrypoint,
         containerElementId: plugConfig.containerElementId,
@@ -124,7 +130,7 @@ function ViteDotNet(plugConfig: PluginConfig) {
 
       this.emitFile({
         type: 'asset',
-        fileName: `${currentDir}/manifest.prod.json`,
+        fileName: `manifest.prod.json`,
         source: JSON.stringify(prodManifest, null, 2)
       });
     }

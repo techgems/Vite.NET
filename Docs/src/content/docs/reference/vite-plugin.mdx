@@ -58,11 +58,12 @@ The plugin merges the following into your Vite config:
 
 | Config | Value | Why |
 | --- | --- | --- |
-| `build.outDir` | `../wwwroot` | Emit assets into the ASP.NET Core static-files directory. |
-| `build.emptyOutDir` | `true` | Clean the output folder before each build. |
-| `build.manifest` | `{appFolder}/manifest.json` | Vite's manifest, nested under the app folder. |
+| `build.outDir` | `../wwwroot/{appFolder}` | Give each app its own folder inside the ASP.NET Core static-files directory. |
+| `build.emptyOutDir` | `true` | Clean the app's own output folder before each build, leaving other apps' assets alone. |
+| `base` (build only) | `/{appFolder}/` | Make urls the bundle resolves at runtime (dynamic import chunks, `public/` files, `url()` in css) point at the app folder. Not applied in dev, where the dev server serves from its own root. |
+| `build.manifest` | `manifest.json` | Vite's manifest, at the root of the app's output folder. |
 | `build.rollupOptions.input` | `entrypoint` | Build from your entry module instead of an `index.html`. |
-| `build.rollupOptions.output` | hashed names under `{appFolder}/` | Nest bundles under the app folder (e.g. `ReactApp/main.[hash].js`). |
+| `build.rollupOptions.output` | hashed names (e.g. `main.[hash].js`) | Flat names — the app folder is already the output directory. |
 | `server.ws` / `server.hmr` | `{ protocol: 'ws' }` | Force plain-`ws` HMR so embedding in an HTTPS page doesn't break the socket. The correct key is chosen for your Vite version. |
 
 ## Derived values

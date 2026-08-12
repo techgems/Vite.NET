@@ -1,288 +1,180 @@
 ---
 title: 'Using the Plugin Without npm'
-description: Vendor the Vite.NET plugin directly into your project instead of installing it from npm.
+description: Replace the Vite.NET npm package with a small vite.config.ts and a couple of helper functions.
 ---
 
 import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
 
-If you would rather not depend on the `vite-dotnet` package from npm — for example, in an air-gapped
-environment, a monorepo that vendors its tooling, or a project that pins all dependencies by hand —
-you can drop the plugin straight into your SPA and import it locally. It behaves identically to the
-published package.
+In some SPAs with a specialized config you might prefer to own the Vite.NET integration yourself
+instead of installing the `vite-dotnet` npm package. The integration is small: its whole job is to
+emit the build into `wwwroot/{app}` and write `manifest.dev.json` / `manifest.prod.json` next to it.
+You can express that directly in your own `vite.config.ts` with a couple of helper functions — no
+plugin required.
 
 <Aside type="note">
-This is entirely optional. For most projects, `npm install vite-dotnet` (see
-[Installation](/introduction/installation)) is simpler and keeps you on the latest version.
+This is entirely optional; for most projects the npm package is simpler. Owning this code means you
+maintain it yourself as Vite.NET evolves — though it rarely changes.
 </Aside>
 
-## Vendor the plugin file
+## Set it up in your Vite config
 
 <Steps>
 
-1. **Create the plugin file** in your SPA folder, next to `vite.config.ts`. Name it
-   `vite-dotnet.ts` (or `vite-dotnet.js` if your config is plain JavaScript) and paste in the
-   plugin source:
+1. **Add the manifest helpers** next to `vite.config.ts` in a `vite-dotnet.ts` file (or
+   `vite-dotnet.js` for a plain-JavaScript config). They just write the two manifest files the .NET
+   backend reads into `wwwroot/{app}`:
 
    <Tabs>
      <TabItem label="TypeScript">
        ```ts title="ReactApp/vite-dotnet.ts"
-       import { writeFileSync, mkdirSync } from 'fs'
-       import { basename, join, posix, resolve } from 'path'
-       import { version as viteVersion } from 'vite'
+       import { writeFileSync, mkdirSync } from 'node:fs'
+       import { join, resolve } from 'node:path'
 
-       export type PluginConfig = {
+       export type IntegrationMeta = {
          entrypoint: string
          containerElementId: string
+         isReact: boolean
        }
 
-       // Derive the SPA's folder name (e.g. "ReactApp") from the current working directory.
-       function retrieveAppFolder(): string {
-         const currentDir = process.cwd().split(/[\\/]/).pop()
-         return currentDir!
+       export function appFolder(): string {
+         return process.cwd().split(/[\\/]/).pop()!
        }
 
-       function outputOptions(assetsDir: string) {
-         const outputFileName = (ext: string) => ({ name }: { name: string | undefined }) => {
-           const shortName = basename(name!).split('.')[0]
-           return posix.join(assetsDir, `${shortName}.[hash].${ext}`)
-         }
-
-         return {
-           entryFileNames: outputFileName('js'),
-           chunkFileNames: outputFileName('js'),
-           assetFileNames: outputFileName('[ext]'),
-         }
+       export function writeDevManifest(meta: IntegrationMeta): void {
+         writeManifest('manifest.dev.json', { ...meta })
        }
 
-       // Force plain-`ws` HMR and emit the correct option key for the running Vite version
-       // (server.ws.* on Vite 8+, server.hmr.* on older versions).
-       function websocketServerOptions() {
-         const major = parseInt((viteVersion ?? '').split('.')[0], 10)
-         const options = { protocol: 'ws' as const }
-         return major >= 8 ? { ws: options } : { hmr: options }
+       export function writeProdManifest(meta: IntegrationMeta): void {
+         writeManifest('manifest.prod.json', meta)
        }
 
-       const REACT_PLUGIN_NAMES = ['vite:react-babel', 'vite:react-refresh', 'vite:react-swc']
-
-       function isReactApp(plugins: readonly { name: string }[]): boolean {
-         return plugins.some((plugin) => REACT_PLUGIN_NAMES.includes(plugin.name))
-       }
-
-       export default function ViteDotNetPlugin(entrypoint: string, containerElementId: string) {
-         return ViteDotNet({ entrypoint, containerElementId })
-       }
-
-       function ViteDotNet(plugConfig: PluginConfig) {
-         let isReact = false
-
-         return {
-           name: 'ViteDotNet',
-           enforce: 'post' as const,
-           configResolved(config: any) {
-             isReact = isReactApp(config.plugins)
-           },
-           config: () => {
-             const currentDir = retrieveAppFolder()
-
-             return {
-               server: {
-                 ...websocketServerOptions(),
-               },
-               build: {
-                 outDir: `../wwwroot`,
-                 emptyOutDir: true,
-                 manifest: `${currentDir}/manifest.json`,
-                 rollupOptions: {
-                   input: plugConfig.entrypoint,
-                   output: outputOptions(currentDir),
-                 },
-               },
-             }
-           },
-           configureServer(server: any) {
-             const generateDevManifest = () => {
-               const { config } = server
-               const port = config.server.port || 5173
-               const currentDir = retrieveAppFolder()
-
-               const devManifest = {
-                 port,
-                 entrypoint: plugConfig.entrypoint,
-                 containerElementId: plugConfig.containerElementId,
-                 isReact,
-               }
-
-               const outputDir = resolve(process.cwd(), '..', 'wwwroot', currentDir)
-               mkdirSync(outputDir, { recursive: true })
-
-               writeFileSync(
-                 join(outputDir, 'manifest.dev.json'),
-                 JSON.stringify(devManifest, null, 2),
-               )
-             }
-
-             server.httpServer?.once('listening', generateDevManifest)
-           },
-           generateBundle(this: any) {
-             const currentDir = retrieveAppFolder()
-
-             const prodManifest = {
-               entrypoint: plugConfig.entrypoint,
-               containerElementId: plugConfig.containerElementId,
-               isReact,
-             }
-
-             this.emitFile({
-               type: 'asset',
-               fileName: `${currentDir}/manifest.prod.json`,
-               source: JSON.stringify(prodManifest, null, 2),
-             })
-           },
-         }
+       function writeManifest(fileName: string, data: unknown): void {
+         const dir = resolve(process.cwd(), '..', 'wwwroot', appFolder())
+         mkdirSync(dir, { recursive: true })
+         writeFileSync(join(dir, fileName), JSON.stringify(data, null, 2))
        }
        ```
      </TabItem>
      <TabItem label="JavaScript">
        ```js title="ReactApp/vite-dotnet.js"
-       import { writeFileSync, mkdirSync } from 'fs'
-       import { basename, join, posix, resolve } from 'path'
-       import { version as viteVersion } from 'vite'
+       import { writeFileSync, mkdirSync } from 'node:fs'
+       import { join, resolve } from 'node:path'
 
-       function retrieveAppFolder() {
+       export function appFolder() {
          return process.cwd().split(/[\\/]/).pop()
        }
 
-       function outputOptions(assetsDir) {
-         const outputFileName = (ext) => ({ name }) => {
-           const shortName = basename(name).split('.')[0]
-           return posix.join(assetsDir, `${shortName}.[hash].${ext}`)
-         }
-
-         return {
-           entryFileNames: outputFileName('js'),
-           chunkFileNames: outputFileName('js'),
-           assetFileNames: outputFileName('[ext]'),
-         }
+       export function writeDevManifest(meta) {
+         writeManifest('manifest.dev.json', { ...meta })
        }
 
-       function websocketServerOptions() {
-         const major = parseInt((viteVersion ?? '').split('.')[0], 10)
-         const options = { protocol: 'ws' }
-         return major >= 8 ? { ws: options } : { hmr: options }
+       export function writeProdManifest(meta) {
+         writeManifest('manifest.prod.json', meta)
        }
 
-       const REACT_PLUGIN_NAMES = ['vite:react-babel', 'vite:react-refresh', 'vite:react-swc']
-
-       function isReactApp(plugins) {
-         return plugins.some((plugin) => REACT_PLUGIN_NAMES.includes(plugin.name))
-       }
-
-       export default function ViteDotNetPlugin(entrypoint, containerElementId) {
-         let isReact = false
-
-         return {
-           name: 'ViteDotNet',
-           enforce: 'post',
-           configResolved(config) {
-             isReact = isReactApp(config.plugins)
-           },
-           config: () => {
-             const currentDir = retrieveAppFolder()
-
-             return {
-               server: { ...websocketServerOptions() },
-               build: {
-                 outDir: `../wwwroot`,
-                 emptyOutDir: true,
-                 manifest: `${currentDir}/manifest.json`,
-                 rollupOptions: {
-                   input: entrypoint,
-                   output: outputOptions(currentDir),
-                 },
-               },
-             }
-           },
-           configureServer(server) {
-             const generateDevManifest = () => {
-               const port = server.config.server.port || 5173
-               const currentDir = retrieveAppFolder()
-
-               const outputDir = resolve(process.cwd(), '..', 'wwwroot', currentDir)
-               mkdirSync(outputDir, { recursive: true })
-
-               writeFileSync(
-                 join(outputDir, 'manifest.dev.json'),
-                 JSON.stringify({ port, entrypoint, containerElementId, isReact }, null, 2),
-               )
-             }
-
-             server.httpServer?.once('listening', generateDevManifest)
-           },
-           generateBundle() {
-             const currentDir = retrieveAppFolder()
-
-             this.emitFile({
-               type: 'asset',
-               fileName: `${currentDir}/manifest.prod.json`,
-               source: JSON.stringify({ entrypoint, containerElementId, isReact }, null, 2),
-             })
-           },
-         }
+       function writeManifest(fileName, data) {
+         const dir = resolve(process.cwd(), '..', 'wwwroot', appFolder())
+         mkdirSync(dir, { recursive: true })
+         writeFileSync(join(dir, fileName), JSON.stringify(data, null, 2))
        }
        ```
      </TabItem>
    </Tabs>
 
-2. **Import it locally** in `vite.config.ts` using a relative path instead of the package name:
+2. **Write your `vite.config.ts`** using them. Send the build into `wwwroot/{app}`, force plain-`ws`
+   HMR (the SPA is embedded in an ASP.NET page that may be served over https), write the dev manifest
+   when serving, and write the prod manifest after the build:
 
-   ```ts title="ReactApp/vite.config.ts" ins={3} del={2}
-   import { defineConfig } from 'vite'
-   import ViteDotNetPlugin from 'vite-dotnet'
-   import ViteDotNetPlugin from './vite-dotnet'
-   import react from '@vitejs/plugin-react'
+   <Tabs>
+     <TabItem label="TypeScript">
+       ```ts title="ReactApp/vite.config.ts"
+       import { defineConfig } from 'vite'
+       import react from '@vitejs/plugin-react'
+       import { appFolder, writeDevManifest, writeProdManifest, type IntegrationMeta } from './vite-dotnet.ts'
 
-   export default defineConfig({
-     plugins: [
-       react(),
-       ViteDotNetPlugin('src/main.tsx', 'root'),
-     ],
-   })
-   ```
+       const meta: IntegrationMeta = { entrypoint: 'src/main.tsx', containerElementId: 'root', isReact: true }
 
-3. **Use it exactly as before.** The arguments, the plugin order (after your framework plugin), and
-   the manifests it emits are all identical to the npm package. Continue with
+       export default defineConfig(({ command }) => {
+         if (command === 'serve') writeDevManifest(meta)
+
+         const dir = appFolder()
+
+         return {
+           plugins: [
+             react(),
+             // emptyOutDir clears wwwroot/{app} during the build, so the prod manifest is written afterwards.
+             { name: 'vite-dotnet-prod-manifest', apply: 'build', closeBundle: () => writeProdManifest(meta) },
+           ],
+           server: { ws: { protocol: 'ws' } },
+           build: {
+             outDir: `../wwwroot/${dir}`,
+             emptyOutDir: true,
+             manifest: 'manifest.json',
+             rollupOptions: {
+               input: meta.entrypoint,
+               output: {
+                 entryFileNames: '[name].[hash].js',
+                 chunkFileNames: '[name].[hash].js',
+                 assetFileNames: '[name].[hash].[ext]',
+               },
+             },
+           },
+         }
+       })
+       ```
+     </TabItem>
+     <TabItem label="JavaScript">
+       ```js title="ReactApp/vite.config.js"
+       import { defineConfig } from 'vite'
+       import react from '@vitejs/plugin-react'
+       import { appFolder, writeDevManifest, writeProdManifest } from './vite-dotnet.js'
+
+       const meta = { entrypoint: 'src/main.tsx', containerElementId: 'root', isReact: true }
+
+       export default defineConfig(({ command }) => {
+         if (command === 'serve') writeDevManifest(meta)
+
+         const dir = appFolder()
+
+         return {
+           plugins: [
+             react(),
+             // emptyOutDir clears wwwroot/{app} during the build, so the prod manifest is written afterwards.
+             { name: 'vite-dotnet-prod-manifest', apply: 'build', closeBundle: () => writeProdManifest(meta) },
+           ],
+           server: { ws: { protocol: 'ws' } },
+           build: {
+             outDir: `../wwwroot/${dir}`,
+             emptyOutDir: true,
+             manifest: 'manifest.json',
+             rollupOptions: {
+               input: meta.entrypoint,
+               output: {
+                 entryFileNames: '[name].[hash].js',
+                 chunkFileNames: '[name].[hash].js',
+                 assetFileNames: '[name].[hash].[ext]',
+               },
+             },
+           },
+         }
+       })
+       ```
+     </TabItem>
+   </Tabs>
+
+3. **You're done.** The manifests are identical to the ones the npm package emits, so the rest of the
+   integration is unchanged. Continue with
    [Backend Configuration](/guides/backend-configuration) and [Rendering a SPA](/guides/rendering-a-spa).
 
 </Steps>
 
-<Aside type="tip" title="You need Node types for TypeScript">
-The plugin uses Node's `fs` and `path` modules. If your SPA doesn't already have them typed, install
-the Node types as a dev dependency so the vendored `.ts` file type-checks:
+<Aside type="tip" title="TypeScript notes">
+The helpers use Node's `fs` and `path`, so install the Node types if you don't already have them:
 
 ```bash
 npm install -D @types/node
 ```
-</Aside>
 
-## Alternatives to vendoring
-
-If you want to avoid the npm **registry** but still use a package, these both work without copying
-source:
-
-- **Local path** — reference the plugin folder directly. Useful in a monorepo:
-
-  ```bash
-  npm install ../path/to/vite-dotnet
-  ```
-
-- **Tarball** — pack the plugin once (`npm pack`) and commit or share the resulting `.tgz`, then:
-
-  ```bash
-  npm install ./vite-dotnet-1.0.0.tgz
-  ```
-
-<Aside type="caution">
-Whichever approach you choose, you take on manual updates: when a new version of Vite.NET ships,
-you'll need to re-copy the file (or re-install the path/tarball) to pick up changes. The npm package
-is the only option that updates with `npm update`.
+Importing the helpers with the `.ts` extension (as above) requires `allowImportingTsExtensions` in
+your tsconfig — the tsconfig that current Vite scaffolds generate already enables it.
 </Aside>

@@ -29,8 +29,8 @@ inside `wwwroot`, and `<prod-vite-scripts>` renders the tags that load them.
 
 ## What the build produces
 
-The plugin points Vite's output at `../wwwroot` and nests everything under the app folder. A build
-of `ReactApp` produces roughly:
+The plugin points Vite's output at `../wwwroot/{AppFolder}`, so everything the build produces lives
+under the app's own folder. A build of `ReactApp` produces roughly:
 
 <FileTree>
 - wwwroot/
@@ -48,6 +48,15 @@ of `ReactApp` produces roughly:
 
 `<prod-vite-scripts>` reads both: the hashed paths from `manifest.json`, and the container id from
 `manifest.prod.json`.
+
+<Aside type="note" title="Files in public/">
+Anything in your app's `public/` folder is copied into the same app folder, so it is served from
+`/{AppFolder}/…` rather than the site root. The plugin sets Vite's build `base` to `/{AppFolder}/`,
+so references Vite resolves for you — imported assets, `url()` in css, dynamic import chunks — are
+rewritten automatically. A path you hard-code as a string in your markup or JSX (for example
+`<img src="/logo.svg">`) is *not* rewritten: write it as `/{AppFolder}/logo.svg`, or import the
+asset so Vite handles the url.
+</Aside>
 
 ## What gets rendered
 

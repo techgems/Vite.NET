@@ -34,7 +34,7 @@ export default defineConfig({
 That's the entire configuration. The plugin derives everything else it needs automatically:
 
 - The **app folder name** is taken from the current working directory (e.g. `ReactApp`). This becomes the key the ASP.NET Core library uses to look up your SPA, so no folder name has to be duplicated in backend config.
-- The **build output** is written to `../wwwroot`, so the compiled assets land inside your ASP.NET Core project's static files directory.
+- The **build output** is written to `../wwwroot/{appFolder}`, so the compiled assets land inside your ASP.NET Core project's static files directory, in a folder of their own. Because each app owns its output folder, `emptyOutDir` never wipes another SPA's assets.
 
 > The plugin must be registered **after** your framework plugin (it uses `enforce: 'post'`), so React detection can see the framework plugin in the resolved config.
 
@@ -59,7 +59,7 @@ The backend reads this to know which port to proxy HMR/module requests to and ho
 
 ### Production manifest (`manifest.prod.json`)
 
-When you run `vite build`, the plugin emits `manifest.prod.json` into the build output at `{appFolder}/manifest.prod.json` (inside `../wwwroot`), right next to Vite's own hashed `manifest.json`.
+When you run `vite build`, the plugin emits `manifest.prod.json` at the root of the build output (`../wwwroot/{appFolder}/manifest.prod.json`), right next to Vite's own hashed `manifest.json`.
 
 ```json
 {

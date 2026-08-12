@@ -1,0 +1,28 @@
+{
+  "src/assets/hero.png": {
+    "file": "hero.CLDdwZDr.png",
+    "src": "src/assets/hero.png"
+  },
+  "src/assets/react.svg": {
+    "file": "react.CHdo91hT.svg",
+    "src": "src/assets/react.svg"
+  },
+  "src/assets/vite.svg": {
+    "file": "vite.BF8QNONU.svg",
+    "src": "src/assets/vite.svg"
+  },
+  "src/main.tsx": {
+    "file": "main.DTalAIIg.js",
+    "name": "main",
+    "src": "src/main.tsx",
+    "isEntry": true,
+    "css": [
+      "main.D64VDMd1.css"
+    ],
+    "assets": [
+      "react.CHdo91hT.svg",
+      "vite.BF8QNONU.svg",
+      "hero.CLDdwZDr.png"
+    ]
+  }
+}

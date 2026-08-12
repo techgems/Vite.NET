@@ -20,6 +20,7 @@ else
 {
     app.RunViteDevServer("ReactApp");
     app.RunViteDevServer("LatestViteReact");
+    app.RunViteDevServer("test-no-plugin");
 }
 
 app.UseHttpsRedirection();

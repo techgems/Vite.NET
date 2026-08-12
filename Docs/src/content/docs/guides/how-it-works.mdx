@@ -89,9 +89,11 @@ entrypoint to its hashed output files) to render the final tags.
 
 ## Why the output goes into `wwwroot`
 
-The plugin sets Vite's `build.outDir` to `../wwwroot`, so compiled assets land inside your
+The plugin sets Vite's `build.outDir` to `../wwwroot/{AppFolder}`, so compiled assets land inside your
 ASP.NET Core project's static-files directory. This is what lets your .NET app serve the SPA's
-assets directly — no separate Node server, no proxy.
+assets directly — no separate Node server, no proxy. Each app builds into its own folder, so
+`emptyOutDir` only ever clears that app's assets and several SPAs can share one `wwwroot` without
+overwriting each other.
 
 ## Next steps
 

@@ -10,17 +10,21 @@
 }
 else
 {
-    var jsBundle = $"{Model.AppManifest.file}";
+    @* The build emits into wwwroot/{app directory}, and the paths in Vite's manifest are relative
+       to that directory, so every url is prefixed with the app directory to become a web path. *@
+    var appDirectory = Model.AppDirectory;
+    var jsBundle = $"/{appDirectory}/{Model.AppManifest.file}";
 
     if (Model.AppManifest.css is not null)
     {
         foreach (var css in Model.AppManifest.css)
         {
-            @: <link rel="stylesheet" href="/@css" />
+            var cssBundle = $"/{appDirectory}/{css}";
+            @: <link rel="stylesheet" href="@cssBundle" />
         }
     }
 
-    <script type="module" src="/@jsBundle"></script>
+    <script type="module" src="@jsBundle"></script>
 
     <div id="@Model.ContainerElementId"></div>
 }
