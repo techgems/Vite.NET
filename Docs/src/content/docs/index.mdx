@@ -1,0 +1,60 @@
+---
+title: Vite.NET
+description: Integrate Vite SPAs with ASP.NET Core Razor Pages and MVC — a single build tool, shared authentication, and micro-frontends without leaving .NET.
+template: splash
+hero:
+  tagline: Integrate Vite SPAs into ASP.NET Core Razor Pages and MVC. One build tool, shared authentication, and micro-frontends — without leaving .NET.
+  actions:
+    - text: Overview
+      link: /introduction/overview
+      icon: right-arrow
+    - text: Quick Start
+      link: /introduction/quick-start
+      variant: minimal
+    - text: View on GitHub
+      link: https://github.com/techgems/Vite.NET
+      icon: github
+      variant: minimal
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+## Why Vite.NET
+
+Vite.NET bridges a Vite-powered front end (React, Svelte, Vue, Solid) and an ASP.NET Core
+back end. Your SPA lives inside your .NET app, so it inherits your authentication, your
+layouts, and your static-file pipeline — while Vite gives you a fast dev server, HMR, and
+optimized production bundles.
+
+<CardGrid>
+	<Card title="One build tool" icon="rocket">
+		Vite compiles your front end; ASP.NET Core serves it. No second server, no separate
+		deployment.
+	</Card>
+	<Card title="Zero-duplication config" icon="setting">
+		The Vite plugin emits manifests describing each app. The back end only needs the app's
+		folder name — everything else is generated.
+	</Card>
+	<Card title="Shared authentication" icon="approve-check">
+		Because the SPA is served by your .NET app, it sits behind the same auth and cookies as
+		the rest of your site.
+	</Card>
+	<Card title="Micro-frontends" icon="puzzle">
+		Embed one SPA or many, each mounted into its own Razor page, all inside a single
+		ASP.NET Core host.
+	</Card>
+</CardGrid>
+
+## The shape of an integration
+
+An integration has three moving parts:
+
+1. **A Vite plugin** (`vite-dotnet`) added to your SPA's `vite.config.ts`. It configures the
+   build output and emits a small JSON manifest describing the app.
+2. **A NuGet package** (`TechGems.ViteDotNet`) registered in your ASP.NET Core app. It reads
+   those manifests and exposes tag helpers.
+3. **Two tag helpers** — `<dev-vite-scripts>` and `<prod-vite-scripts>` — that render the
+   correct `<script>`/`<link>` tags into a Razor page for development or production.
+
+Continue to the [Overview](/introduction/overview) for the full picture, or jump straight to
+the [Quick Start](/introduction/quick-start).

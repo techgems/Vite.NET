@@ -1,0 +1,61 @@
+---
+title: 'prod-vite-scripts'
+description: API reference for the production tag helper that mounts a SPA from the built assets.
+---
+
+import { Badge, Aside } from '@astrojs/starlight/components';
+
+<Badge text="Tag helper" variant="note" /> <Badge text="Production" variant="tip" />
+
+Renders a SPA in **production** by emitting the script and style tags for the hashed bundle in
+`wwwroot`. Reads Vite's [`manifest.json`](/reference/prod-manifest) for the hashed asset paths and
+[`manifest.prod.json`](/reference/prod-manifest) for the container element id. No dev server is
+involved.
+
+## Tag
+
+```razor
+<prod-vite-scripts app-name="ReactApp" />
+```
+
+## Attributes
+
+| Attribute | Type | Required | Description |
+| --- | --- | --- | --- |
+| `app-name` | `string` | Only when more than one app is configured | The SPA directory name to render. With a single configured app it may be omitted. |
+
+## What it renders
+
+When both manifests are present:
+
+- One `<link rel="stylesheet" href="/{css}" />` per CSS file in the entry chunk.
+- `<script type="module" src="/{jsBundle}"></script>` for the hashed JS bundle.
+- The container element: `<div id="{containerElementId}"></div>`.
+
+When the production manifest is missing, it renders a **"Production Bundle not found"** message
+instead — a hint that the SPA hasn't been built or the configured directory name is wrong.
+
+## Resolved values
+
+| Property | Source |
+| --- | --- |
+| `AppManifest` | Vite's `manifest.json` — the entry chunk, providing `file` (hashed JS) and `css` (hashed stylesheets). |
+| `ProdManifest` | The plugin's `manifest.prod.json` — integration metadata. |
+| `ContainerElementId` | `manifest.prod.json` → `containerElementId` (default `"app"`). |
+
+<Aside type="caution">
+Ensure `app.UseStaticFiles()` is in your pipeline — the emitted tags reference assets served from
+`wwwroot`.
+</Aside>
+
+## Requirements
+
+- The integration must be registered — see [AddViteIntegration](/reference/add-vite-integration).
+- The tag helpers must be registered in `_ViewImports.cshtml`.
+- The SPA must be built (`npm run build`) so `wwwroot/{appFolder}/manifest.json` and
+  `manifest.prod.json` exist.
+
+## Related
+
+- [dev-vite-scripts](/reference/dev-vite-scripts) — the development counterpart.
+- [Production Builds](/guides/production-builds) — building and serving the assets.

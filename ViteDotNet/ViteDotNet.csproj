@@ -1,22 +1,29 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFrameworks>net7.0;net8.0;net9.0;net10.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <ImplicitUsings>enable</ImplicitUsings>
 	<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
-	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-	<Version>0.1.0</Version>
+	<Version>1.0.0-beta</Version>
 	<Authors>Carlos Jimenez</Authors>
 	<Company>Tech Gems</Company>
 	<Product>Vite.NET</Product>
-	<Description>Vite.NET is an integration tool for MVC and Razor pages backends</Description>
+	<Description>Vite.NET is an integration tool for MVC and Razor pages backends.</Description>
+	<RepositoryType>git</RepositoryType>
 	<RepositoryUrl>https://github.com/techgems/Vite.NET</RepositoryUrl>
-	<RepositoryType>Public</RepositoryType>
+	<PackageProjectUrl>https://vite-dotnet.techgems.net/</PackageProjectUrl>
+	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageTags>vite;vite-integration;react;svelte;vue;lit;solidjs</PackageTags>
-	<FileVersion>0.1.0</FileVersion>
 	<PackageId>TechGems.ViteDotNet</PackageId>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
+	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<PackageReleaseNotes>
+		- Update to .NET 10.0 support
+		- Update to TechGems.StaticComponents 1.3.2
+		- Obsolete old config object.
+	</PackageReleaseNotes>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,8 +31,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
-    <PackageReference Include="TechGems.RazorComponentTagHelpers" Version="1.1.0" />
+	<None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="TechGems.StaticComponents" Version="1.3.2" />
 	<PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="7.0.0" />
   </ItemGroup>
 
@@ -34,7 +44,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="_ViewImports.cshtml" />
+    <None Include="Components\_ViewImports.cshtml" />
   </ItemGroup>
 
 </Project>

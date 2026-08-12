@@ -1,0 +1,89 @@
+---
+title: 'Production Builds'
+description: Building the SPA into wwwroot, what the plugin emits, and serving it with prod-vite-scripts.
+---
+
+import { Aside, Steps, FileTree } from '@astrojs/starlight/components';
+
+In production there is no Vite dev server. Vite compiles your SPA into hashed, optimized assets
+inside `wwwroot`, and `<prod-vite-scripts>` renders the tags that load them.
+
+## Building the SPA
+
+<Steps>
+
+1. **Run the Vite build** from the SPA folder:
+
+   ```bash
+   cd ReactApp
+   npm run build
+   ```
+
+2. **Switch the page to the production helper:**
+
+   ```razor title="Pages/Index.cshtml"
+   <prod-vite-scripts app-name="ReactApp" />
+   ```
+
+</Steps>
+
+## What the build produces
+
+The plugin points Vite's output at `../wwwroot` and nests everything under the app folder. A build
+of `ReactApp` produces roughly:
+
+<FileTree>
+- wwwroot/
+  - ReactApp/
+    - main.[hash].js        the hashed JS bundle
+    - main.[hash].css       the hashed CSS (if any)
+    - manifest.json         Vite's manifest (source → hashed output)
+    - manifest.prod.json    the plugin's integration metadata
+</FileTree>
+
+- **`manifest.json`** is Vite's standard build manifest — it maps your entrypoint to its hashed
+  output files and lists the CSS that belongs to the entry chunk.
+- **`manifest.prod.json`** is the plugin's integration metadata — the entrypoint, the container
+  element id, and whether the app is React.
+
+`<prod-vite-scripts>` reads both: the hashed paths from `manifest.json`, and the container id from
+`manifest.prod.json`.
+
+## What gets rendered
+
+For a built app, the helper emits:
+
+```html
+<link rel="stylesheet" href="/ReactApp/main.[hash].css" />
+<script type="module" src="/ReactApp/main.[hash].js"></script>
+<div id="root"></div>
+```
+
+Because the assets live in `wwwroot`, they're served by ASP.NET Core's static-files middleware —
+make sure `app.UseStaticFiles()` is in your pipeline.
+
+<Aside type="caution" title="Build before you run in production">
+If `<prod-vite-scripts>` can't find `manifest.prod.json` it renders a "Production Bundle not found"
+message. That means either the SPA hasn't been built, or the configured app directory name doesn't
+match the folder in `wwwroot`. Run `npm run build` and confirm the `ViteDotNet` config value.
+</Aside>
+
+## Automating the build in publish
+
+To build the SPA as part of `dotnet publish`, add an MSBuild target that runs the Vite build. For
+example:
+
+```xml title="YourApp.csproj"
+<Target Name="BuildReactApp" BeforeTargets="Publish">
+  <Exec Command="npm install" WorkingDirectory="ReactApp" />
+  <Exec Command="npm run build" WorkingDirectory="ReactApp" />
+</Target>
+```
+
+This ensures the hashed assets and `manifest.prod.json` exist in `wwwroot` before your app is
+packaged.
+
+## Switching helpers per environment
+
+See [Rendering a SPA](/guides/rendering-a-spa#choosing-between-them) for the pattern of branching
+between `<dev-vite-scripts>` and `<prod-vite-scripts>` based on `IWebHostEnvironment`.

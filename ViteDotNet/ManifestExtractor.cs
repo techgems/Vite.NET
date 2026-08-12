@@ -1,35 +1,19 @@
-﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Hosting;
 using System.Text.Json;
 
 namespace ViteDotNet;
 
+/// <inheritdoc />
 public class ManifestExtractor : IManifestExtractor
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly Dictionary<string, ManifestModel> ManifestMap = new Dictionary<string, ManifestModel>();
 
-    public ManifestExtractor(IWebHostEnvironment environment, IOptions<Dictionary<string, IntegrationConfigModel>> config)
+    public ManifestExtractor(IWebHostEnvironment environment)
     {
         _environment = environment;
-
-        foreach (var app in config.Value)
-        {
-            var appRoot = app.Value.RootDirectory;
-
-            ManifestMap.Add(app.Key, GetManifestFileContent(appRoot));
-        }
     }
 
-    public ManifestModel? GetManifestByAppName(string appName)
-    {
-        ManifestModel? manifest;
-
-        ManifestMap.TryGetValue(appName, out manifest);
-
-        return manifest;
-    }
-
+    /// <inheritdoc />
     public ManifestModel? GetManifestFileContent(string appFolder)
     {
         var rootPath = _environment.ContentRootPath; //get the root path

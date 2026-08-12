@@ -9,9 +9,17 @@
 
 	<ItemGroup>
 		<!-- Don't publish the SPA source files, but do show them in the project files list -->
+		<Compile Remove="wwwroot\ClientApp\**" />
 		<Content Remove="SvelteApp\**" />
+		<Content Remove="wwwroot\ClientApp\**" />
+		<EmbeddedResource Remove="wwwroot\ClientApp\**" />
 		<None Remove="SvelteApp\**" />
+		<None Remove="wwwroot\ClientApp\**" />
 		<None Include="SvelteApp\**" Exclude="SvelteApp\node_modules\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove="ReactApp\devManifestTest.ts" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -19,7 +27,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Folder Include="wwwroot\ClientApp\" />
+	  <Folder Include="wwwroot\" />
 	</ItemGroup>
 
 	<Target Name="NpmInstall" Inputs="package.json" Outputs="ClientApp/node_modules/.install-stamp">

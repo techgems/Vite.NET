@@ -1,0 +1,92 @@
+---
+title: 'Backend Configuration'
+description: The ViteDotNet configuration section and the AddViteIntegration registration methods.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+The back end's configuration has been reduced to a single thing: the **directory name(s)** of the
+integrated Vite app(s). Every other value the back end needs is read from the manifests the plugin
+emits into `wwwroot`.
+
+## The `ViteDotNet` section
+
+Add the app folder name under the `ViteDotNet` key. It accepts either a single string or an array.
+
+<Tabs>
+  <TabItem label="Single app">
+    ```json title="appsettings.Development.json"
+    {
+      "ViteDotNet": "ReactApp"
+    }
+    ```
+  </TabItem>
+  <TabItem label="Multiple apps">
+    ```json title="appsettings.Development.json"
+    {
+      "ViteDotNet": [ "ReactApp", "SvelteApp" ]
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+The value(s) must match the SPA folder names — the same names the plugin derives from each app's
+working directory, and the folders the manifests are written under in `wwwroot`.
+
+<Aside type="tip">
+With exactly one app configured, the tag helpers' `app-name` attribute is optional. With more than
+one, `app-name` is required so the helper knows which app to render. See
+[Multiple SPAs](/guides/multiple-spas).
+</Aside>
+
+## Registering the integration
+
+Register the integration on the service collection in `Program.cs`. There are three overloads.
+
+### From configuration
+
+Reads the app directory name(s) from the `ViteDotNet` configuration section:
+
+```csharp title="Program.cs"
+builder.Services.AddViteIntegration(builder.Configuration);
+```
+
+### A single directory in code
+
+Bypasses configuration and registers one app directly:
+
+```csharp title="Program.cs"
+builder.Services.AddViteIntegration("ReactApp");
+```
+
+### Multiple directories in code
+
+```csharp title="Program.cs"
+builder.Services.AddViteIntegration(new[] { "ReactApp", "SvelteApp" });
+```
+
+## Registering the tag helpers
+
+The tag helpers live in the `ViteDotNet` assembly. Register them in `_ViewImports.cshtml` (in the
+`Pages` folder for Razor Pages, or `Views` for MVC):
+
+```razor title="Pages/_ViewImports.cshtml"
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, ViteDotNet
+```
+
+This makes `<dev-vite-scripts>` and `<prod-vite-scripts>` available in your pages.
+
+## What you no longer configure
+
+Compared with older versions, these values are **no longer** in your backend config — they come
+from the manifests instead:
+
+- The entrypoint (`src/main.tsx`)
+- The container element id (`root`)
+- The dev-server port
+- Whether the app is React
+
+They live in `vite.config.ts` (the plugin's arguments) and are emitted into the manifests at dev
+and build time. See [How It Works](/guides/how-it-works) and, if you're upgrading, the
+[Migrating from v1](/miscellaneous/migrating-from-v1) guide.

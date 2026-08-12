@@ -1,0 +1,100 @@
+---
+title: 'How It Works'
+description: The manifests, the plugin, and the tag helpers — how the front end describes itself to the back end.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+The central design idea in Vite.NET is that **the front end describes itself to the back end**
+through manifest files. The back end's only configuration is the directory name of each app;
+every other value flows from a manifest the Vite plugin generates.
+
+This page explains the data flow so the tag helpers and configuration make sense.
+
+## The problem manifests solve
+
+To render a SPA into a Razor page, the back end needs to know a few things:
+
+- The **entrypoint** module (e.g. `src/main.tsx`).
+- The **container element id** the app mounts into (e.g. `root`).
+- Whether the app is **React** (React needs an extra HMR preamble in development).
+- In development, the **port** the Vite dev server is listening on.
+- In production, the **hashed filenames** Vite produced for the JS and CSS.
+
+Older integrations made you hand-write most of these in `appsettings.json` and keep them in sync
+with `vite.config.ts`. Vite.NET instead has the plugin **emit** them, so there is a single source
+of truth: your Vite config.
+
+## The two manifests
+
+The plugin writes a different manifest depending on the mode.
+
+### Development — `manifest.dev.json`
+
+When you run `vite` (the dev server), the plugin waits for the server to start listening, then
+writes `wwwroot/{AppFolder}/manifest.dev.json`:
+
+```json title="wwwroot/ReactApp/manifest.dev.json"
+{
+  "port": 5173,
+  "entrypoint": "src/main.tsx",
+  "containerElementId": "root",
+  "isReact": true
+}
+```
+
+The `<dev-vite-scripts>` tag helper reads this to know which port to load the Vite client and
+entrypoint from, and how to mount the app.
+
+### Production — `manifest.prod.json`
+
+When you run `vite build`, the plugin emits `manifest.prod.json` into the build output, next to
+Vite's own hashed `manifest.json`:
+
+```json title="wwwroot/ReactApp/manifest.prod.json"
+{
+  "entrypoint": "src/main.tsx",
+  "containerElementId": "root",
+  "isReact": true
+}
+```
+
+Production needs no port — the assets are served statically. The `<prod-vite-scripts>` tag helper
+combines this integration metadata with Vite's standard `manifest.json` (which maps your
+entrypoint to its hashed output files) to render the final tags.
+
+## End-to-end flow
+
+<Steps>
+
+1. **You configure the plugin** in `vite.config.ts` with your entrypoint and container id:
+
+   ```ts
+   ViteDotNetPlugin('src/main.tsx', 'root')
+   ```
+
+2. **The plugin derives the app folder name** from the working directory (e.g. `ReactApp`) and
+   detects React from the resolved plugin list.
+
+3. **On `npm run dev`**, the plugin writes `manifest.dev.json`. On `npm run build`, it writes the
+   production bundle plus `manifest.prod.json`, both into `wwwroot`.
+
+4. **The back end reads the app folder name** from the `ViteDotNet` config section and locates the
+   manifests under `wwwroot/{AppFolder}/`.
+
+5. **A tag helper renders the SPA** into a Razor page — `<dev-vite-scripts>` in development,
+   `<prod-vite-scripts>` in production.
+
+</Steps>
+
+## Why the output goes into `wwwroot`
+
+The plugin sets Vite's `build.outDir` to `../wwwroot`, so compiled assets land inside your
+ASP.NET Core project's static-files directory. This is what lets your .NET app serve the SPA's
+assets directly — no separate Node server, no proxy.
+
+## Next steps
+
+- [The Vite Plugin](/guides/the-vite-plugin) — what the plugin configures and detects.
+- [Backend Configuration](/guides/backend-configuration) — the `ViteDotNet` section in depth.
+- [Rendering a SPA](/guides/rendering-a-spa) — the two tag helpers, side by side.

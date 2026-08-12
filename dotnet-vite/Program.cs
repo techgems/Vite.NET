@@ -1,5 +1,5 @@
 using ViteDotNet;
-using ViteDotNet.Middleware;
+using ViteDotNet.NPM;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +16,11 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+else
+{
+    app.RunViteDevServer("ReactApp");
+    app.RunViteDevServer("LatestViteReact");
+}
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
@@ -26,7 +31,5 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-app.RunViteDevServer("./ClientApp");
-app.RunViteDevServer("./ReactApp");
 
 app.Run();

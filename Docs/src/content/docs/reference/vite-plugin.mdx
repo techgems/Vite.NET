@@ -1,0 +1,89 @@
+---
+title: 'ViteDotNetPlugin'
+description: API reference for the vite-dotnet plugin's default export.
+---
+
+import { Badge, Aside } from '@astrojs/starlight/components';
+
+<Badge text="npm: vite-dotnet" variant="note" /> <Badge text="Vite 3–8+" variant="success" />
+
+The default export of the `vite-dotnet` package. A Vite plugin factory that configures the build
+for ASP.NET Core and emits the manifests the back end reads.
+
+## Import
+
+```ts
+import ViteDotNetPlugin from 'vite-dotnet'
+```
+
+## Signature
+
+```ts
+function ViteDotNetPlugin(
+  entrypoint: string,
+  containerElementId: string,
+): Plugin
+```
+
+| Parameter | Type | Description |
+| --- | --- | --- |
+| `entrypoint` | `string` | Path to the app's entry module, relative to the SPA folder (e.g. `src/main.tsx`). |
+| `containerElementId` | `string` | The `id` of the DOM element the SPA mounts into (e.g. `root`). |
+
+**Returns:** a Vite `Plugin` object with `enforce: 'post'`.
+
+## Usage
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import ViteDotNetPlugin from 'vite-dotnet'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    ViteDotNetPlugin('src/main.tsx', 'root'),
+  ],
+})
+```
+
+<Aside type="caution">
+Register the plugin **after** your framework plugin. It uses `enforce: 'post'` and inspects the
+resolved plugin list to detect React, which requires the framework plugin to already be present.
+</Aside>
+
+## What it configures
+
+The plugin merges the following into your Vite config:
+
+| Config | Value | Why |
+| --- | --- | --- |
+| `build.outDir` | `../wwwroot` | Emit assets into the ASP.NET Core static-files directory. |
+| `build.emptyOutDir` | `true` | Clean the output folder before each build. |
+| `build.manifest` | `{appFolder}/manifest.json` | Vite's manifest, nested under the app folder. |
+| `build.rollupOptions.input` | `entrypoint` | Build from your entry module instead of an `index.html`. |
+| `build.rollupOptions.output` | hashed names under `{appFolder}/` | Nest bundles under the app folder (e.g. `ReactApp/main.[hash].js`). |
+| `server.ws` / `server.hmr` | `{ protocol: 'ws' }` | Force plain-`ws` HMR so embedding in an HTTPS page doesn't break the socket. The correct key is chosen for your Vite version. |
+
+## Derived values
+
+| Value | How it's derived |
+| --- | --- |
+| **App folder name** | The last segment of the current working directory (e.g. `ReactApp`). |
+| **`isReact`** | `true` if the resolved plugins include `vite:react-babel`, `vite:react-refresh`, or `vite:react-swc`. Captured during `configResolved`. |
+
+## Emitted files
+
+| File | When | Location | Contents |
+| --- | --- | --- | --- |
+| [`manifest.dev.json`](/reference/dev-manifest) | Dev server starts listening | `wwwroot/{appFolder}/` | `port`, `entrypoint`, `containerElementId`, `isReact` |
+| [`manifest.prod.json`](/reference/prod-manifest) | `vite build` (`generateBundle`) | `wwwroot/{appFolder}/` | `entrypoint`, `containerElementId`, `isReact` |
+
+## Types
+
+```ts
+export type PluginConfig = {
+  entrypoint: string
+  containerElementId: string
+}
+```

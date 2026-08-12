@@ -1,0 +1,84 @@
+---
+title: 'Overview'
+description: What Vite.NET is, the problem it solves, and how its pieces fit together.
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+Vite.NET is an ASP.NET Core library that integrates [Vite](https://vitejs.dev) SPAs with
+Razor Pages and MVC views. Instead of hosting your front end on a separate Node server and
+wiring up CORS, proxies, and a second deployment, your SPA is built by Vite and **served
+directly by your .NET application**.
+
+It is the .NET analogue to integrations like [Vite Ruby](https://vite-ruby.netlify.app/) or
+the [Laravel Vite plugin](https://github.com/laravel/vite-plugin). It works with **React,
+Svelte, Vue, and Solid**.
+
+## Why integrate Vite with ASP.NET Core?
+
+<CardGrid>
+	<Card title="Shared authentication" icon="approve-check">
+		The SPA is served by your .NET app, so it lives behind the same cookies, auth, and
+		middleware as every other page.
+	</Card>
+	<Card title="Shared static assets" icon="document">
+		Vite writes its build output into `wwwroot`, so the SPA's assets are served by the same
+		static-file pipeline as the rest of your site.
+	</Card>
+	<Card title="Micro-frontends" icon="puzzle">
+		Mount one SPA per page, or several SPAs across different pages, all inside one host — no
+		Node micro-service mesh required.
+	</Card>
+	<Card title="A great dev experience" icon="rocket">
+		In development you get Vite's dev server and hot module replacement; in production you get
+		hashed, optimized bundles.
+	</Card>
+</CardGrid>
+
+## The two packages
+
+Vite.NET ships as a pair that work together:
+
+| Package | Where | Purpose |
+| --- | --- | --- |
+| [`TechGems.ViteDotNet`](https://www.nuget.org/packages/TechGems.ViteDotNet) | NuGet (your ASP.NET Core app) | Registers the integration and provides the tag helpers that render your SPA into a Razor page. |
+| [`vite-dotnet`](https://www.npmjs.com/package/vite-dotnet) | npm (your SPA) | A Vite plugin that shapes the build output and emits the manifests the back end reads. |
+
+<Aside type="note">
+The plugin is not meant to be used on its own — it is the companion to the NuGet package.
+Install both.
+</Aside>
+
+## How the pieces connect
+
+The key idea in this version of Vite.NET is that **the front end describes itself to the
+back end**. You no longer duplicate the entrypoint, container element id, or port in your
+`appsettings.json`. Instead:
+
+1. The Vite plugin knows your `entrypoint` and `containerElementId` (you pass them when you
+   register it) and detects whether the app is React.
+2. At dev-server start and at build time, the plugin writes small **manifest** files into
+   `wwwroot` describing the app.
+3. The back end reads those manifests. Its only configuration is the **directory name** of
+   each integrated app.
+
+```
+ReactApp/vite.config.ts        appsettings: "ViteDotNet": "ReactApp"
+        │                                          │
+        │  ViteDotNetPlugin("src/main.tsx",        │  reads manifests from
+        │                   "root")                 │  wwwroot/ReactApp/
+        ▼                                          ▼
+  manifest.dev.json  ─────────────────────►  <dev-vite-scripts>   (development)
+  manifest.prod.json ─────────────────────►  <prod-vite-scripts>  (production)
+```
+
+## Where to go next
+
+- [Installation](/introduction/installation) — add both packages to an existing project.
+- [Quick Start](/introduction/quick-start) — a full walkthrough from empty page to running SPA.
+- [How It Works](/guides/how-it-works) — the manifests and rendering flow in depth.
+
+<Aside type="tip">
+Looking for the documentation of the previous release? Use the **v1 Docs** link in the site
+header, or go directly to [v1.vite-dotnet.techgems.net](https://v1.vite-dotnet.techgems.net).
+</Aside>

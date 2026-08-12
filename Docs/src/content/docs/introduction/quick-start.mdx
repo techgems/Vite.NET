@@ -1,0 +1,150 @@
+---
+title: 'Quick Start'
+description: A complete walkthrough from an empty ASP.NET Core project to a running, integrated Vite SPA.
+---
+
+import { Steps, Aside, FileTree } from '@astrojs/starlight/components';
+
+This walkthrough takes you from an ASP.NET Core Razor Pages project with a Vite SPA folder to a
+running integration — first in development with hot module replacement, then a production build.
+
+We'll use a React app in a folder called `ReactApp`, but the steps are the same for Svelte, Vue,
+or Solid.
+
+## The target layout
+
+<FileTree>
+- YourApp/
+  - Program.cs
+  - appsettings.Development.json
+  - Pages/
+    - Index.cshtml         the page that hosts the SPA
+    - _ViewImports.cshtml
+  - ReactApp/              your Vite SPA
+    - vite.config.ts
+    - package.json
+    - src/
+      - main.tsx           the entrypoint
+  - wwwroot/               Vite build output lands here
+</FileTree>
+
+<Aside type="note">
+The SPA folder lives **inside** the ASP.NET Core project. Its Vite build writes into the
+project's `wwwroot`, so the compiled assets are served as normal static files.
+</Aside>
+
+## Step 1 — Install and register
+
+If you have not already, follow [Installation](/introduction/installation) to add the
+`TechGems.ViteDotNet` NuGet package and the `vite-dotnet` Vite plugin. In short:
+
+```csharp title="Program.cs"
+builder.Services.AddViteIntegration(builder.Configuration);
+```
+
+```razor title="Pages/_ViewImports.cshtml"
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@addTagHelper *, ViteDotNet
+```
+
+```ts title="ReactApp/vite.config.ts"
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import ViteDotNetPlugin from 'vite-dotnet'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    ViteDotNetPlugin('src/main.tsx', 'root'),
+  ],
+})
+```
+
+## Step 2 — Tell the back end the app folder name
+
+```json title="appsettings.Development.json"
+{
+  "ViteDotNet": "ReactApp"
+}
+```
+
+## Step 3 — Render the SPA in a page
+
+Add the development tag helper to the Razor page that should host the SPA:
+
+```razor title="Pages/Index.cshtml"
+@page
+@model YourApp.Pages.IndexModel
+@{
+    Layout = null;
+}
+
+<dev-vite-scripts app-name="ReactApp" />
+```
+
+<Aside type="tip">
+With a single app configured you can omit `app-name` entirely — `<dev-vite-scripts />` will use
+the only configured app. Pass `app-name` when you have [more than one SPA](/guides/multiple-spas).
+</Aside>
+
+## Step 4 — Run both in development
+
+<Steps>
+
+1. **Start the Vite dev server** from the SPA folder:
+
+   ```bash
+   cd ReactApp
+   npm run dev
+   ```
+
+   On start, the plugin writes `wwwroot/ReactApp/manifest.dev.json` describing the running
+   server (its port, your entrypoint, the container id, and whether it's React).
+
+2. **Run the ASP.NET Core app** in another terminal:
+
+   ```bash
+   dotnet run
+   ```
+
+3. **Open the page.** The `<dev-vite-scripts>` helper reads `manifest.dev.json` and injects the
+   Vite client and your entrypoint from the dev server, so you get full hot module replacement
+   inside your Razor page.
+
+</Steps>
+
+<Aside type="caution" title="Start order">
+If you open the page before the Vite dev server is listening, the helper renders a "Vite Dev
+Server Not Found" message and retries — start `npm run dev` and refresh. See
+[Development Workflow](/guides/development-workflow) for how to launch the dev server
+automatically from .NET.
+</Aside>
+
+## Step 5 — Build for production
+
+<Steps>
+
+1. **Build the SPA:**
+
+   ```bash
+   cd ReactApp
+   npm run build
+   ```
+
+   Vite writes the hashed bundle into `wwwroot/ReactApp/` along with its own `manifest.json`
+   and the plugin's `manifest.prod.json`.
+
+2. **Swap to the production tag helper** on the page:
+
+   ```razor title="Pages/Index.cshtml"
+   <prod-vite-scripts app-name="ReactApp" />
+   ```
+
+   In production, `<prod-vite-scripts>` reads the hashed asset paths from Vite's `manifest.json`
+   and the container id from `manifest.prod.json`, and renders the final `<script>` and `<link>`
+   tags — no dev server involved.
+
+</Steps>
+
+You now have a Vite SPA fully integrated into your ASP.NET Core app. To understand what's
+happening under the hood, read [How It Works](/guides/how-it-works).

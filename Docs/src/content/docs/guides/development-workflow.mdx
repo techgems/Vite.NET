@@ -1,0 +1,103 @@
+---
+title: 'Development Workflow'
+description: Running the Vite dev server alongside ASP.NET Core, HMR, and launching the dev server from .NET.
+---
+
+import { Aside, Steps } from '@astrojs/starlight/components';
+
+In development you run two processes: the Vite dev server (which serves your SPA modules with hot
+module replacement) and your ASP.NET Core app (which serves the Razor page hosting the SPA). The
+`<dev-vite-scripts>` helper stitches them together.
+
+## Running the two processes
+
+<Steps>
+
+1. **Start the Vite dev server** from the SPA folder:
+
+   ```bash
+   cd ReactApp
+   npm run dev
+   ```
+
+   When the server begins listening, the plugin writes `wwwroot/ReactApp/manifest.dev.json` with
+   the server's port, your entrypoint, the container id, and whether the app is React.
+
+2. **Run the ASP.NET Core app:**
+
+   ```bash
+   dotnet run
+   ```
+
+3. **Open the page.** `<dev-vite-scripts>` reads the manifest and loads the Vite client and your
+   entrypoint from `http://localhost:{port}`, giving you HMR inside the Razor page.
+
+</Steps>
+
+
+## If the dev server isn't running
+
+If you load the page before the Vite dev server is listening, `<dev-vite-scripts>` renders a
+**"Vite Dev Server Not Found"** message and retries fetching the entrypoint for a short window.
+Start `npm run dev` and refresh, and the SPA mounts. This is expected behavior, not an error in
+your setup.
+
+## Launching the dev server from .NET (optional)
+
+To avoid running two terminals, you can have ASP.NET Core start the Vite dev server for you with the
+`RunViteDevServer` extension (in the `ViteDotNet.NPM` namespace). Call it during startup in
+development:
+
+```csharp title="Program.cs"
+using ViteDotNet.NPM;
+
+var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.RunViteDevServer();
+}
+```
+
+There's nothing to pass: the SPA folder comes from your `ViteDotNet` configuration, and the port is
+whatever the dev server binds to — the plugin records it in `manifest.dev.json`, so neither the
+directory nor the port is configured here.
+
+When more than one app is configured, name the one to launch — calling it once per app:
+
+```csharp
+app.RunViteDevServer("ReactApp");
+app.RunViteDevServer("SvelteApp");
+```
+
+For anything beyond that, pass a configuration callback:
+
+```csharp
+app.RunViteDevServer(options =>
+{
+    options.AppName = "ReactApp";      // required only when multiple apps are configured
+    options.ScriptName = "dev";         // package.json script to run (default: "dev")
+    options.PackageManager = "npm";     // e.g. "pnpm" or "yarn" (default: "npm")
+});
+```
+
+| Option | Meaning |
+| --- | --- |
+| `AppName` | The SPA directory to launch. Optional with a single configured app; required with more than one. |
+| `ScriptName` | The npm script to run. Defaults to `dev`. |
+| `PackageManager` | The package manager executable. Defaults to `npm`. |
+| `WorkingDirectory` | Overrides the derived SPA folder. Defaults to `ContentRoot/{AppName}`. |
+| `ReadyMatch` | Regex matched against the command's output to detect a successful start. Defaults to `ready in`. |
+
+The command starts once your app is up and listening, so a single `dotnet run` brings up both
+processes. The call returns immediately — there's no `Task` to await — and the dev server is
+terminated together with your app when it shuts down.
+
+<Aside type="caution">
+This is a development-only convenience. Don't call `RunViteDevServer` in production — production
+serves the built assets from `wwwroot` via `<prod-vite-scripts>`, with no dev server involved.
+</Aside>
+
+## Next
+
+When you're ready to ship, see [Production Builds](/guides/production-builds).

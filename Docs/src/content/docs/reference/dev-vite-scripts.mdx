@@ -1,0 +1,67 @@
+---
+title: 'dev-vite-scripts'
+description: API reference for the development tag helper that mounts a SPA from the Vite dev server.
+---
+
+import { Badge, Aside } from '@astrojs/starlight/components';
+
+<Badge text="Tag helper" variant="note" /> <Badge text="Development" variant="tip" />
+
+Renders a SPA in **development** by loading the Vite client and your entrypoint from the running
+dev server, giving you hot module replacement inside a Razor page. Reads
+[`manifest.dev.json`](/reference/dev-manifest).
+
+## Tag
+
+```razor
+<dev-vite-scripts app-name="ReactApp" />
+```
+
+## Attributes
+
+| Attribute | Type | Required | Description |
+| --- | --- | --- | --- |
+| `app-name` | `string` | Only when more than one app is configured | The SPA directory name to render. With a single configured app it may be omitted. |
+
+## What it renders
+
+- For React apps (`isReact: true`), a `<script static-script type="module">` block injecting the
+  React refresh runtime preamble.
+- The container element: `<div id="{containerElementId}"></div>`.
+- A loader script that fetches your entrypoint from `http://localhost:{port}/{entrypoint}`, and once
+  it responds, appends the Vite client (`/@vite/client`) and the entrypoint as module scripts.
+- A fallback: if the entrypoint can't be fetched within the retry window, it replaces the container
+  contents with a **"Vite Dev Server Not Found"** message.
+
+## Resolved values
+
+The helper resolves these from the dev manifest (falling back to defaults if the manifest is absent
+because the dev server hasn't started):
+
+| Property | Source | Default |
+| --- | --- | --- |
+| `Port` | `manifest.dev.json` → `port` | `5173` |
+| `Entrypoint` | `manifest.dev.json` → `entrypoint` | `""` |
+| `ContainerElementId` | `manifest.dev.json` → `containerElementId` | `"app"` |
+| `IsReact` | `manifest.dev.json` → `isReact` | `false` |
+
+<Aside type="note">
+`AppDirectory` is resolved from `app-name` (or the single configured app) via `IViteConfigService`.
+If `app-name` is omitted while multiple apps are configured, resolution throws.
+</Aside>
+
+## Requirements
+
+- The integration must be registered — see [AddViteIntegration](/reference/add-vite-integration).
+- The tag helpers must be registered in `_ViewImports.cshtml`:
+
+  ```razor
+  @addTagHelper *, ViteDotNet
+  ```
+
+- The Vite dev server must be running so `manifest.dev.json` exists and the entrypoint is reachable.
+
+## Related
+
+- [prod-vite-scripts](/reference/prod-vite-scripts) — the production counterpart.
+- [Development Workflow](/guides/development-workflow) — running the dev server alongside .NET.
