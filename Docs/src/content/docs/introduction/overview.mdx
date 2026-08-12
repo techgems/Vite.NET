@@ -42,12 +42,8 @@ Vite.NET ships as a pair that work together:
 | Package | Where | Purpose |
 | --- | --- | --- |
 | [`TechGems.ViteDotNet`](https://www.nuget.org/packages/TechGems.ViteDotNet) | NuGet (your ASP.NET Core app) | Registers the integration and provides the tag helpers that render your SPA into a Razor page. |
-| [`vite-dotnet`](https://www.npmjs.com/package/vite-dotnet) | npm (your SPA) | A Vite plugin that shapes the build output and emits the manifests the back end reads. |
+| [`vite-dotnet`](https://www.npmjs.com/package/vite-dotnet) | NPM (your SPA folder inside an ASP.NET Core app) | A Vite plugin that shapes the build output and emits the manifests the back end reads. |
 
-<Aside type="note">
-The plugin is not meant to be used on its own — it is the companion to the NuGet package.
-Install both.
-</Aside>
 
 ## How the pieces connect
 
@@ -79,6 +75,6 @@ ReactApp/vite.config.ts        appsettings: "ViteDotNet": "ReactApp"
 - [How It Works](/guides/how-it-works) — the manifests and rendering flow in depth.
 
 <Aside type="tip">
-Looking for the documentation of the previous release? Use the **v1 Docs** link in the site
-header, or go directly to [v1.vite-dotnet.techgems.net](https://v1.vite-dotnet.techgems.net).
+Looking for the documentation of the previous release? Use the **v0 Docs** link in the site
+header, or go directly to [v0.vite-dotnet.techgems.net](https://v0.vite-dotnet.techgems.net).
 </Aside>

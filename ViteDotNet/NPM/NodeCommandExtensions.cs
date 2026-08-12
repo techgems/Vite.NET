@@ -46,11 +46,12 @@ public static class NodeCommandExtensions
 
     /// <summary>
     /// Launches a node command once the server has started, configured via <paramref name="configure"/>.
+    /// This is the shared implementation for RunViteDevServer, and it also keeps <see cref="NodeCommandOptions"/> internal.
     /// </summary>
     /// <param name="applicationBuilder">The <see cref="IApplicationBuilder"/>.</param>
     /// <param name="configure">Configures the command that runs. Most defaults are derived from the
     /// existing <c>ViteDotNet</c> configuration, so this is often left empty.</param>
-    public static IApplicationBuilder RunViteDevServer(
+    internal static IApplicationBuilder RunViteDevServer(
         this IApplicationBuilder applicationBuilder, Action<NodeCommandOptions> configure)
     {
         if (applicationBuilder == null)

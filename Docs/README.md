@@ -24,7 +24,7 @@ Docs/
 │   ├── components/             # Starlight component overrides
 │   │   ├── DefaultDark.astro   # forces the dark theme
 │   │   ├── DisableThemeColor.astro
-│   │   └── HeaderLinks.astro   # adds the "v1 Docs" header link
+│   │   └── HeaderLinks.astro   # adds the "v0 Docs" header link
 │   ├── content/docs/           # the documentation pages (.md / .mdx)
 │   └── content.config.ts
 ├── astro.config.mjs            # site config + sidebar
@@ -33,4 +33,4 @@ Docs/
 ```
 
 The header links out to the previous documentation site at
-`https://v1.vite-dotnet.techgems.net` via `src/components/HeaderLinks.astro`.
+`https://v0.vite-dotnet.techgems.net` via `src/components/HeaderLinks.astro`.

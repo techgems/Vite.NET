@@ -1,12 +1,14 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
+import starlightLinksValidator from 'starlight-links-validator';
 
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://vite-dotnet.techgems.net',
 	integrations: [
 		starlight({
+			plugins: [starlightLinksValidator()],
 			title: 'Vite.NET',
 			description:
 				'Integrate Vite SPAs with ASP.NET Core Razor Pages and MVC — a single build tool, shared authentication, and micro-frontends without leaving .NET.',
@@ -24,7 +26,7 @@ export default defineConfig({
 				// Force the light theme and remove the theme switcher.
 				ThemeProvider: './src/components/DefaultLight.astro',
 				ThemeSelect: './src/components/DisableThemeColor.astro',
-				// Add a header link out to the previous (v1) documentation site.
+				// Add a header link out to the previous (v0) documentation site.
 				SocialIcons: './src/components/HeaderLinks.astro',
 			},
 			sidebar: [
@@ -56,8 +58,7 @@ export default defineConfig({
 						{ label: 'AddViteIntegration', slug: 'reference/add-vite-integration' },
 						{ label: 'dev-vite-scripts', slug: 'reference/dev-vite-scripts' },
 						{ label: 'prod-vite-scripts', slug: 'reference/prod-vite-scripts' },
-						{ label: 'manifest.dev.json', slug: 'reference/dev-manifest' },
-						{ label: 'manifest.prod.json', slug: 'reference/prod-manifest' },
+						{ label: 'Manifest Files', slug: 'reference/manifest-files' },
 					],
 				},
 				{

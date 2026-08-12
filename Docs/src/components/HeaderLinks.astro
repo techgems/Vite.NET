@@ -1,17 +1,17 @@
 ---
 // Overrides Starlight's `SocialIcons` header slot so we can add a link to the previous
-// (v1) documentation site next to the default social icons. Rendering `<Default />` keeps
+// (v0) documentation site next to the default social icons. Rendering `<Default />` keeps
 // the built-in GitHub / social links intact.
 import Default from '@astrojs/starlight/components/SocialIcons.astro';
 ---
 
 <a
 	class="site-header-link"
-	href="https://v1.vite-dotnet.techgems.net"
+	href="https://v0.vite-dotnet.techgems.net"
 	target="_blank"
 	rel="noopener noreferrer"
 >
-	v1 Docs
+	v0 Docs
 </a>
 
 <Default><slot /></Default>

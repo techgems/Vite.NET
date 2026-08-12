@@ -1,0 +1,82 @@
+---
+title: 'Manifest Files'
+description: The development and production manifests the Vite plugin emits, and the fields they carry.
+---
+
+import { Badge, Aside } from '@astrojs/starlight/components';
+
+<Badge text="Emitted by vite-dotnet" variant="note" /> <Badge text="Development" variant="tip" /> <Badge text="Production" variant="tip" />
+
+The Vite plugin emits two small integration manifests that tell the back end how to mount your app,
+with no hand-written configuration beyond the app's folder name. Both are written to
+`wwwroot/{appFolder}/` (e.g. `wwwroot/ReactApp/`), so they sit alongside the production build output:
+
+- **`manifest.dev.json`** — how to reach the running dev server. Consumed by
+  [`dev-vite-scripts`](/reference/dev-vite-scripts).
+- **`manifest.prod.json`** — integration metadata for the built assets. Consumed by
+  [`prod-vite-scripts`](/reference/prod-vite-scripts).
+
+## Fields
+
+Both manifests carry the entrypoint, container id, and React flag passed to (or detected by) the
+plugin. Only the dev manifest carries a `port` — production serves the built assets statically.
+
+| Field | Type | Manifest | Description |
+| --- | --- | --- | --- |
+| `entrypoint` | `string` | both | The entry module passed to `ViteDotNetPlugin`. |
+| `containerElementId` | `string` | both | The mount element id passed to `ViteDotNetPlugin`. |
+| `isReact` | `boolean` | both | Whether a React plugin was detected in the resolved config. |
+| `port` | `number` | dev only | The port the dev server bound to (`config.server.port`, default `5173`). |
+
+## `manifest.dev.json`
+
+Written during the dev server's `listening` event — once `npm run dev` has started and the server
+has bound its port. If you load the hosting page before this happens, the dev tag helper falls back
+to its defaults and retries.
+
+```json
+{
+  "port": 5173,
+  "entrypoint": "src/main.tsx",
+  "containerElementId": "root",
+  "isReact": true
+}
+```
+
+<Aside type="note">
+Maps to the `DevManifestModel` record on the back end:
+`record DevManifestModel(int Port, string Entrypoint, string ContainerElementId, bool IsReact)`.
+</Aside>
+
+## `manifest.prod.json`
+
+Emitted from the plugin's `generateBundle` hook during `vite build`, alongside Vite's own
+`manifest.json`.
+
+```json
+{
+  "entrypoint": "src/main.tsx",
+  "containerElementId": "root",
+  "isReact": true
+}
+```
+
+<Aside type="note">
+Maps to the `ProdManifestModel` record on the back end:
+`record ProdManifestModel(string Entrypoint, string ContainerElementId, bool IsReact)`.
+</Aside>
+
+### Pairing with Vite's `manifest.json`
+
+`manifest.prod.json` does not contain the hashed asset paths. Those live in Vite's standard build
+manifest, `wwwroot/{appFolder}/manifest.json`, which maps your entrypoint to its output `file` and
+associated `css`. The production tag helper reads **both**:
+
+- **`manifest.json`** → the hashed JS and CSS paths to emit as `<script>` / `<link>` tags.
+- **`manifest.prod.json`** → the `containerElementId` for the mount `<div>`.
+
+## Related
+
+- [How It Works](/guides/how-it-works) — why the manifests exist.
+- [`dev-vite-scripts`](/reference/dev-vite-scripts) / [`prod-vite-scripts`](/reference/prod-vite-scripts) — the tag helpers that consume them.
+- [Production Builds](/guides/production-builds) — the full build output.

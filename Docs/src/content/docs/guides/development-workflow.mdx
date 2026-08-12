@@ -70,24 +70,7 @@ app.RunViteDevServer("ReactApp");
 app.RunViteDevServer("SvelteApp");
 ```
 
-For anything beyond that, pass a configuration callback:
-
-```csharp
-app.RunViteDevServer(options =>
-{
-    options.AppName = "ReactApp";      // required only when multiple apps are configured
-    options.ScriptName = "dev";         // package.json script to run (default: "dev")
-    options.PackageManager = "npm";     // e.g. "pnpm" or "yarn" (default: "npm")
-});
-```
-
-| Option | Meaning |
-| --- | --- |
-| `AppName` | The SPA directory to launch. Optional with a single configured app; required with more than one. |
-| `ScriptName` | The npm script to run. Defaults to `dev`. |
-| `PackageManager` | The package manager executable. Defaults to `npm`. |
-| `WorkingDirectory` | Overrides the derived SPA folder. Defaults to `ContentRoot/{AppName}`. |
-| `ReadyMatch` | Regex matched against the command's output to detect a successful start. Defaults to `ready in`. |
+Each call runs that app's `dev` npm script in its SPA folder.
 
 The command starts once your app is up and listening, so a single `dotnet run` brings up both
 processes. The call returns immediately — there's no `Task` to await — and the dev server is
