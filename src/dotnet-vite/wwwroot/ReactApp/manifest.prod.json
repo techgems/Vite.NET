@@ -1,0 +1,5 @@
+{
+  "entrypoint": "src/main.tsx",
+  "containerElementId": "root",
+  "isReact": true
+}

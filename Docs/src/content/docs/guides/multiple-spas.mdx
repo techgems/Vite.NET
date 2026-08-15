@@ -1,0 +1,98 @@
+---
+title: 'Multiple SPAs'
+description: Running several integrated Vite apps in one ASP.NET Core host for a micro-frontend setup.
+---
+
+import { Aside, FileTree } from '@astrojs/starlight/components';
+
+One ASP.NET Core host can serve several integrated SPAs — each mounted into its own Razor page.
+This is how Vite.NET supports a micro-frontend style architecture without a Node micro-service
+mesh: every app is built by Vite into `wwwroot` and served by the same .NET host, behind the same
+authentication.
+
+## Project layout
+
+Each SPA is its own folder with its own `vite.config.ts`, and each builds into its own subfolder of
+`wwwroot`:
+
+<FileTree>
+- YourApp/
+  - ReactApp/
+    - vite.config.ts     ViteDotNetPlugin('src/main.tsx', 'root')
+  - SvelteApp/
+    - vite.config.ts     ViteDotNetPlugin('src/main.ts', 'app')
+  - wwwroot/
+    - ReactApp/          ReactApp's build + manifests
+    - SvelteApp/         SvelteApp's build + manifests
+</FileTree>
+
+## Configuration
+
+List every app's folder name in the `ViteDotNet` section as an array:
+
+```json title="appsettings.Development.json"
+{
+  "ViteDotNet": [ "ReactApp", "SvelteApp" ]
+}
+```
+
+Or register them in code:
+
+```csharp title="Program.cs"
+builder.Services.AddViteIntegration(new[] { "ReactApp", "SvelteApp" });
+```
+
+## Rendering each app
+
+With more than one app configured, the `app-name` attribute is **required** so the tag helper knows
+which app to render. Each page renders one app:
+
+```razor title="Pages/React.cshtml"
+<dev-vite-scripts app-name="ReactApp" />
+```
+
+```razor title="Pages/Svelte.cshtml"
+<dev-vite-scripts app-name="SvelteApp" />
+```
+
+<Aside type="caution" title="app-name is required with multiple apps">
+If you omit `app-name` while more than one app is configured, the helper throws — it can't guess
+which SPA you meant. The attribute value must match one of the configured directory names
+(case-insensitive).
+</Aside>
+
+## Running them in development
+
+Each SPA has its own dev server, so start each one (each writes its own `manifest.dev.json` under
+its `wwwroot/{AppFolder}/`):
+
+```bash
+# terminal 1
+cd ReactApp && npm run dev
+
+# terminal 2
+cd SvelteApp && npm run dev
+```
+
+Give each dev server a distinct port (via each app's Vite config or its `dev` script) so they don't
+collide. The manifests record whichever port each server actually bound to, and the tag helpers
+load from the right one.
+
+<Aside type="tip">
+You can also launch each dev server from .NET with multiple `RunViteDevServer` calls — see
+[Development Workflow](/guides/development-workflow#launching-the-dev-server-from-net-optional).
+</Aside>
+
+## Building them for production
+
+Build each app; each writes its hashed bundle and `manifest.prod.json` into its own `wwwroot`
+subfolder:
+
+```bash
+cd ReactApp && npm run build
+cd ../SvelteApp && npm run build
+```
+
+Then render each with `<prod-vite-scripts app-name="…">` on its page. Because the apps are isolated
+by folder, they never clash — you can mix frameworks (React on one page, Svelte on another) in the
+same host.

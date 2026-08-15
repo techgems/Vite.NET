@@ -1,0 +1,47 @@
+---
+title: 'The Vite Plugin'
+description: What the vite-dotnet plugin configures, how it detects React, and the manifests it emits.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+The `vite-dotnet` plugin is the front-end half of the integration. You add it to your SPA's
+`vite.config.ts`, and it does three jobs: it shapes the build output for ASP.NET Core, it detects
+whether your app is React, and it emits the manifests the back end reads.
+
+## Adding the plugin
+
+The plugin's default export is a function taking two arguments:
+
+```ts title="vite.config.ts"
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import ViteDotNetPlugin from 'vite-dotnet'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    ViteDotNetPlugin('src/main.tsx', 'root'),
+  ],
+})
+```
+
+| Argument | Example | Meaning |
+| --- | --- | --- |
+| `entrypoint` | `'src/main.tsx'` | Path to your app's entry module, relative to the SPA folder. |
+| `containerElementId` | `'root'` | The `id` of the DOM element the SPA mounts into. |
+
+
+<Aside type="caution" title="Register it after your framework plugin">
+The plugin uses `enforce: 'post'`, so it must come **after** `react()`, `svelte()`, `vue()`, etc.
+in the `plugins` array.
+</Aside>
+
+
+### Config emitted for server-side
+
+- **On dev-server start**, once the server is listening, it writes
+  `wwwroot/{AppFolder}/manifest.dev.json` (port, entrypoint, container id, isReact). See
+  [Manifest Files](/reference/manifest-files).
+- **On `vite build`**, it emits `wwwroot/{AppFolder}/manifest.prod.json` (entrypoint, container id,
+  isReact) alongside Vite's own `manifest.json`. See [Manifest Files](/reference/manifest-files).

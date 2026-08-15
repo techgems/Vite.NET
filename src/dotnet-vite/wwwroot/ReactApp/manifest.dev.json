@@ -1,0 +1,6 @@
+{
+  "port": 5177,
+  "entrypoint": "src/main.tsx",
+  "containerElementId": "root",
+  "isReact": true
+}

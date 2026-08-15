@@ -1,0 +1,21 @@
+{
+  "src/assets/react.svg": {
+    "file": "react.35ef61ed.svg",
+    "src": "src/assets/react.svg"
+  },
+  "src/main.css": {
+    "file": "main.3fce1f81.css",
+    "src": "src/main.css"
+  },
+  "src/main.tsx": {
+    "file": "main.abb35c0c.js",
+    "src": "src/main.tsx",
+    "isEntry": true,
+    "css": [
+      "main.3fce1f81.css"
+    ],
+    "assets": [
+      "react.35ef61ed.svg"
+    ]
+  }
+}

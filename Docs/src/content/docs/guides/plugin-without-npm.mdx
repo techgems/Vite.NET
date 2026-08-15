@@ -1,0 +1,180 @@
+---
+title: 'Using the Plugin Without npm'
+description: Replace the Vite.NET npm package with a small vite.config.ts and a couple of helper functions.
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+In some SPAs with a specialized config you might prefer to own the Vite.NET integration yourself
+instead of installing the `vite-dotnet` npm package. The integration is small: its whole job is to
+emit the build into `wwwroot/{app}` and write `manifest.dev.json` / `manifest.prod.json` next to it.
+You can express that directly in your own `vite.config.ts` with a couple of helper functions — no
+plugin required.
+
+<Aside type="note">
+This is entirely optional; for most projects the npm package is simpler. Owning this code means you
+maintain it yourself as Vite.NET evolves — though it rarely changes.
+</Aside>
+
+## Set it up in your Vite config
+
+<Steps>
+
+1. **Add the manifest helpers** next to `vite.config.ts` in a `vite-dotnet.ts` file (or
+   `vite-dotnet.js` for a plain-JavaScript config). They just write the two manifest files the .NET
+   backend reads into `wwwroot/{app}`:
+
+   <Tabs>
+     <TabItem label="TypeScript">
+       ```ts title="ReactApp/vite-dotnet.ts"
+       import { writeFileSync, mkdirSync } from 'node:fs'
+       import { join, resolve } from 'node:path'
+
+       export type IntegrationMeta = {
+         entrypoint: string
+         containerElementId: string
+         isReact: boolean
+       }
+
+       export function appFolder(): string {
+         return process.cwd().split(/[\\/]/).pop()!
+       }
+
+       export function writeDevManifest(meta: IntegrationMeta): void {
+         writeManifest('manifest.dev.json', { ...meta })
+       }
+
+       export function writeProdManifest(meta: IntegrationMeta): void {
+         writeManifest('manifest.prod.json', meta)
+       }
+
+       function writeManifest(fileName: string, data: unknown): void {
+         const dir = resolve(process.cwd(), '..', 'wwwroot', appFolder())
+         mkdirSync(dir, { recursive: true })
+         writeFileSync(join(dir, fileName), JSON.stringify(data, null, 2))
+       }
+       ```
+     </TabItem>
+     <TabItem label="JavaScript">
+       ```js title="ReactApp/vite-dotnet.js"
+       import { writeFileSync, mkdirSync } from 'node:fs'
+       import { join, resolve } from 'node:path'
+
+       export function appFolder() {
+         return process.cwd().split(/[\\/]/).pop()
+       }
+
+       export function writeDevManifest(meta) {
+         writeManifest('manifest.dev.json', { ...meta })
+       }
+
+       export function writeProdManifest(meta) {
+         writeManifest('manifest.prod.json', meta)
+       }
+
+       function writeManifest(fileName, data) {
+         const dir = resolve(process.cwd(), '..', 'wwwroot', appFolder())
+         mkdirSync(dir, { recursive: true })
+         writeFileSync(join(dir, fileName), JSON.stringify(data, null, 2))
+       }
+       ```
+     </TabItem>
+   </Tabs>
+
+2. **Write your `vite.config.ts`** using them. Send the build into `wwwroot/{app}`, force plain-`ws`
+   HMR (the SPA is embedded in an ASP.NET page that may be served over https), write the dev manifest
+   when serving, and write the prod manifest after the build:
+
+   <Tabs>
+     <TabItem label="TypeScript">
+       ```ts title="ReactApp/vite.config.ts"
+       import { defineConfig } from 'vite'
+       import react from '@vitejs/plugin-react'
+       import { appFolder, writeDevManifest, writeProdManifest, type IntegrationMeta } from './vite-dotnet.ts'
+
+       const meta: IntegrationMeta = { entrypoint: 'src/main.tsx', containerElementId: 'root', isReact: true }
+
+       export default defineConfig(({ command }) => {
+         if (command === 'serve') writeDevManifest(meta)
+
+         const dir = appFolder()
+
+         return {
+           plugins: [
+             react(),
+             // emptyOutDir clears wwwroot/{app} during the build, so the prod manifest is written afterwards.
+             { name: 'vite-dotnet-prod-manifest', apply: 'build', closeBundle: () => writeProdManifest(meta) },
+           ],
+           server: { ws: { protocol: 'ws' } },
+           build: {
+             outDir: `../wwwroot/${dir}`,
+             emptyOutDir: true,
+             manifest: 'manifest.json',
+             rollupOptions: {
+               input: meta.entrypoint,
+               output: {
+                 entryFileNames: '[name].[hash].js',
+                 chunkFileNames: '[name].[hash].js',
+                 assetFileNames: '[name].[hash].[ext]',
+               },
+             },
+           },
+         }
+       })
+       ```
+     </TabItem>
+     <TabItem label="JavaScript">
+       ```js title="ReactApp/vite.config.js"
+       import { defineConfig } from 'vite'
+       import react from '@vitejs/plugin-react'
+       import { appFolder, writeDevManifest, writeProdManifest } from './vite-dotnet.js'
+
+       const meta = { entrypoint: 'src/main.tsx', containerElementId: 'root', isReact: true }
+
+       export default defineConfig(({ command }) => {
+         if (command === 'serve') writeDevManifest(meta)
+
+         const dir = appFolder()
+
+         return {
+           plugins: [
+             react(),
+             // emptyOutDir clears wwwroot/{app} during the build, so the prod manifest is written afterwards.
+             { name: 'vite-dotnet-prod-manifest', apply: 'build', closeBundle: () => writeProdManifest(meta) },
+           ],
+           server: { ws: { protocol: 'ws' } },
+           build: {
+             outDir: `../wwwroot/${dir}`,
+             emptyOutDir: true,
+             manifest: 'manifest.json',
+             rollupOptions: {
+               input: meta.entrypoint,
+               output: {
+                 entryFileNames: '[name].[hash].js',
+                 chunkFileNames: '[name].[hash].js',
+                 assetFileNames: '[name].[hash].[ext]',
+               },
+             },
+           },
+         }
+       })
+       ```
+     </TabItem>
+   </Tabs>
+
+3. **You're done.** The manifests are identical to the ones the npm package emits, so the rest of the
+   integration is unchanged. Continue with
+   [Backend Configuration](/guides/backend-configuration) and [Rendering a SPA](/guides/rendering-a-spa).
+
+</Steps>
+
+<Aside type="tip" title="TypeScript notes">
+The helpers use Node's `fs` and `path`, so install the Node types if you don't already have them:
+
+```bash
+npm install -D @types/node
+```
+
+Importing the helpers with the `.ts` extension (as above) requires `allowImportingTsExtensions` in
+your tsconfig — the tsconfig that current Vite scaffolds generate already enables it.
+</Aside>

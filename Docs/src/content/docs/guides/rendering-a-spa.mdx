@@ -1,0 +1,102 @@
+---
+title: 'Rendering a SPA'
+description: The dev-vite-scripts and prod-vite-scripts tag helpers that mount your SPA into a Razor page.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+You mount a SPA into a Razor page with one of two tag helpers. Both render the container element
+your app mounts into plus the script/style tags needed to load it — one for development, one for
+production.
+
+## The two tag helpers
+
+<Tabs>
+  <TabItem label="Development">
+    ```razor title="Pages/Index.cshtml"
+    @page
+    @model YourApp.Pages.IndexModel
+    @{
+        Layout = null;
+    }
+
+    <dev-vite-scripts app-name="ReactApp" />
+    ```
+  </TabItem>
+  <TabItem label="Production">
+    ```razor title="Pages/Index.cshtml"
+    @page
+    @model YourApp.Pages.IndexModel
+    @{
+        Layout = null;
+    }
+
+    <prod-vite-scripts app-name="ReactApp" />
+    ```
+  </TabItem>
+</Tabs>
+
+Both helpers take a single attribute:
+
+| Attribute | Required | Meaning |
+| --- | --- | --- |
+| `app-name` | Only when more than one app is configured | The SPA directory name to render. |
+
+<Aside type="tip">
+With a single configured app you can drop the attribute entirely: `<dev-vite-scripts />`.
+</Aside>
+
+## `<dev-vite-scripts>` — development
+
+This helper reads `manifest.dev.json` for the running dev server and:
+
+- Renders the container `<div id="root">`.
+- Loads the Vite client and your entrypoint from the dev server (`http://localhost:{port}/…`), so
+  you get hot module replacement inside the Razor page.
+- For React apps, injects the React refresh preamble first.
+- If the dev server can't be reached, shows a "Vite Dev Server Not Found" message and retries — so
+  a not-yet-started dev server produces a clear hint rather than a blank page.
+
+## `<prod-vite-scripts>` — production
+
+This helper reads Vite's `manifest.json` (for the hashed bundle paths) and `manifest.prod.json`
+(for the container id), then:
+
+- Emits `<link rel="stylesheet">` tags for each CSS file in the entry chunk.
+- Emits the `<script type="module">` tag for the hashed JS bundle.
+- Renders the container `<div>`.
+- If no production manifest is found, shows a "Production Bundle not found" message — a reminder to
+  run `npm run build` or to check the configured app directory name.
+
+## Choosing between them
+
+The two helpers are meant to be swapped per environment. A common pattern is to branch on the
+hosting environment in the page:
+
+```razor title="Pages/Index.cshtml"
+@page
+@model YourApp.Pages.IndexModel
+@inject IWebHostEnvironment Env
+@{
+    Layout = null;
+}
+
+@if (Env.IsDevelopment())
+{
+    <dev-vite-scripts app-name="ReactApp" />
+}
+else
+{
+    <prod-vite-scripts app-name="ReactApp" />
+}
+```
+
+<Aside type="note">
+Both helpers only render the SPA's mount point and its scripts — they do not render a full HTML
+document. Put them inside a layout (or a `Layout = null` page with your own `<html>`/`<head>`) as
+you would any other page content.
+</Aside>
+
+For the full attribute and property surface, see the
+[dev-vite-scripts](/reference/dev-vite-scripts) and [prod-vite-scripts](/reference/prod-vite-scripts)
+references.
