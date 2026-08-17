@@ -27,14 +27,15 @@ The previous documentation is still available. Use the **v0 Docs** link in the h
 
 ### 1. Update the packages
 
-Update the NuGet package and the Vite plugin to their latest versions:
+Update the NuGet package and the Vite plugin to **1.0.0-beta**. Since it is a prerelease, the
+version has to be given explicitly (or `--prerelease`), otherwise NuGet keeps you on v0:
 
 ```bash
-dotnet add package TechGems.ViteDotNet
+dotnet add package TechGems.ViteDotNet --version 1.0.0-beta
 ```
 
 ```bash
-cd ReactApp && npm install vite-dotnet@latest
+cd ReactApp && npm install vite-dotnet@1.0.0-beta
 ```
 
 ### 2. Add the plugin arguments

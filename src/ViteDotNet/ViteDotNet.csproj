@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <ImplicitUsings>enable</ImplicitUsings>
+	<IncludeSymbols>true</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 	<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	<Version>1.0.0-beta</Version>
 	<Authors>Carlos Jimenez</Authors>

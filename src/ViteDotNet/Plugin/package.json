@@ -9,25 +9,28 @@
     "dotnet",
     "asp-net-core"
   ],
+  "homepage": "https://github.com/techgems/Vite.NET#readme",
+  "bugs": {
+    "url": "https://github.com/techgems/Vite.NET/issues"
+  },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/techgems/Vite.NET"
+    "url": "git+https://github.com/techgems/Vite.NET.git"
   },
-  "files": [
-    "lib/**/*"
-  ],
-  "main": "lib/index.js",
+  "license": "MIT",
+  "author": "TechGems",
   "type": "module",
-  "module": "lib/index.js",
   "exports": {
     ".": {
       "import": "./lib/index.js"
     },
     "./package.json": "./package.json"
   },
+  "main": "lib/index.js",
   "types": "lib/index.d.ts",
-  "author": "TechGems",
-  "license": "MIT",
+  "files": [
+    "lib/**/*"
+  ],
   "scripts": {
     "build": "tsc"
   },
@@ -41,5 +44,6 @@
   },
   "engines": {
     "node": ">=14"
-  }
+  },
+  "module": "lib/index.js"
 }
