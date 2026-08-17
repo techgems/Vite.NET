@@ -150,4 +150,4 @@ Read the relevant file before answering in depth; do not guess at APIs.
 
 ## Documentation
 
-Full docs: <https://vite-dotnet.techgems.net>. Source: <https://github.com/techgems/Vite.NET>.
+Full docs: <https://vite-dotnet.techgems.net>. Source: <https://github.com/techgems/vite-dotnet>.

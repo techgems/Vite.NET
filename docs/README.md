@@ -1,6 +1,6 @@
 # Vite.NET Documentation
 
-The documentation site for [Vite.NET](https://github.com/techgems/Vite.NET), built with
+The documentation site for [Vite.NET](https://github.com/techgems/vite-dotnet), built with
 [Astro](https://astro.build) and [Starlight](https://starlight.astro.build).
 
 ## 🧞 Commands

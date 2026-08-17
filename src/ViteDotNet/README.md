@@ -74,5 +74,5 @@ With a single app configured you can omit `app-name` entirely. See the full [Qui
 ## Links
 
 - **Documentation:** https://vite-dotnet.techgems.net
-- **GitHub:** https://github.com/techgems/Vite.NET
+- **GitHub:** https://github.com/techgems/vite-dotnet
 - **License:** MIT

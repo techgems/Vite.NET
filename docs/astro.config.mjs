@@ -22,7 +22,7 @@ export default defineConfig({
 				replacesTitle: true,
 			},
 			social: [
-				{ icon: 'github', label: 'GitHub', href: 'https://github.com/techgems/Vite.NET' },
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/techgems/vite-dotnet' },
 			],
 			components: {
 				// Force the light theme and remove the theme switcher.

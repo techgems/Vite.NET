@@ -9,13 +9,13 @@
     "dotnet",
     "asp-net-core"
   ],
-  "homepage": "https://github.com/techgems/Vite.NET#readme",
+  "homepage": "https://github.com/techgems/vite-dotnet#readme",
   "bugs": {
-    "url": "https://github.com/techgems/Vite.NET/issues"
+    "url": "https://github.com/techgems/vite-dotnet/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/techgems/Vite.NET.git"
+    "url": "git+https://github.com/techgems/vite-dotnet.git"
   },
   "license": "MIT",
   "author": "TechGems",

@@ -14,7 +14,7 @@
 	<Product>Vite.NET</Product>
 	<Description>Vite.NET is an integration tool for MVC and Razor pages backends.</Description>
 	<RepositoryType>git</RepositoryType>
-	<RepositoryUrl>https://github.com/techgems/Vite.NET</RepositoryUrl>
+	<RepositoryUrl>https://github.com/techgems/vite-dotnet</RepositoryUrl>
 	<PackageProjectUrl>https://vite-dotnet.techgems.net/</PackageProjectUrl>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<PackageTags>vite;vite-integration;react;svelte;vue;lit;solidjs</PackageTags>
