@@ -33,4 +33,4 @@ Docs/
 ```
 
 The header links out to the previous documentation site at
-`https://v0.vite-dotnet.techgems.net` via `src/components/HeaderLinks.astro`.
+`https://tech-gems.gitbook.io/v0-vite-dotnet` via `src/components/HeaderLinks.astro`.
