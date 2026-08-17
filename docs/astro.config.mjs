@@ -6,6 +6,10 @@ import starlightLinksValidator from 'starlight-links-validator';
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://vite-dotnet.techgems.net',
+	redirects: {
+		// The migration guide moved into Introduction; keep the previously published URL working.
+		'/miscellaneous/migrating-from-v0': '/introduction/migrating-from-v0',
+	},
 	integrations: [
 		starlight({
 			// The skill archive is a build artifact in `public/`, not a page, so the link
@@ -38,6 +42,7 @@ export default defineConfig({
 						{ label: 'Overview', slug: 'introduction/overview' },
 						{ label: 'Installation', slug: 'introduction/installation' },
 						{ label: 'Quick Start', slug: 'introduction/quick-start' },
+						{ label: 'Migrating from v0', slug: 'introduction/migrating-from-v0' },
 					],
 				},
 				{
@@ -66,7 +71,6 @@ export default defineConfig({
 				{
 					label: 'Miscellaneous',
 					items: [
-						{ label: 'Migrating from v0', slug: 'miscellaneous/migrating-from-v0' },
 						{ label: 'Claude Skill', slug: 'miscellaneous/claude-skill' },
 					],
 				},

@@ -1,0 +1,152 @@
+---
+title: 'Migrating from v0'
+description: Upgrading an existing Vite.NET project to v1, where the plugin emits manifests and backend configuration collapses to the app's directory name.
+---
+
+import { Aside, Steps, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+v1 has breaking changes, so an existing v0 project needs a few updates before it runs. They are
+small, and they exist for a good reason: v1 removes nearly all of the backend configuration v0
+required. This page covers what changed and how to upgrade.
+
+<Aside type="note">
+Starting a new project? None of this applies — go to [Installation](/introduction/installation).
+</Aside>
+
+## What changed
+
+In v0 you described your SPA to the back end by hand, in `appsettings.json`, and kept that
+description in sync with `vite.config.ts`. Two files held the same facts, and drift between them
+was the most common source of problems.
+
+In v1 **the Vite plugin emits manifest files** describing each app, and the back end reads them.
+Your `vite.config.ts` becomes the single source of truth, and backend configuration collapses to
+one line:
+
+```json title="appsettings.Development.json"
+{ "ViteDotNet": "ReactApp" }
+```
+
+| Area | Before (v0) | Now |
+| --- | --- | --- |
+| Backend config | Full per-app settings (entrypoint, container id, port, framework) in `appsettings.json` | Just the app **directory name(s)** under `ViteDotNet` |
+| App identity | Configured explicitly | Derived from the SPA's folder automatically |
+| Dev/prod metadata | Backend config | `manifest.dev.json` / `manifest.prod.json` in `wwwroot` |
+
+What that buys you: the entrypoint, container element id, dev-server port, and framework detection
+are no longer written by hand anywhere, so there is nothing left to keep in sync. Change your
+entrypoint in `vite.config.ts` and the back end follows on the next dev-server start or build. The
+dev server records whichever port it actually bound to, so ports can change freely. And adding a
+second SPA is just adding its folder name to a list — see [Multiple SPAs](/guides/multiple-spas).
+
+The trade-off is that the values the back end used to read from your configuration are no longer
+read from there, which is what makes the upgrade a breaking one.
+
+## Upgrade steps
+
+<Steps>
+
+1. **Update both packages**
+
+   `TechGems.ViteDotNet` (NuGet) and `vite-dotnet` (npm) share a version, and the manifests are
+   the contract between them — so they must move together. A v0 plugin emits no manifests for a v1
+   back end to read, and a v1 plugin's manifests mean nothing to a v0 back end.
+
+   The current release is **1.0.0-beta**. As a prerelease the version has to be given explicitly
+   (or `--prerelease`), otherwise NuGet keeps you on v0:
+
+   ```bash
+   dotnet add package TechGems.ViteDotNet --version 1.0.0-beta
+   ```
+
+   ```bash
+   cd ReactApp && npm install vite-dotnet@1.0.0-beta
+   ```
+
+2. **Pass the entrypoint and container id to the plugin**
+
+   These are the values that used to live in your backend configuration. Register the plugin
+   **after** your framework plugin — it uses `enforce: 'post'` and inspects the resolved plugin
+   list to detect React:
+
+   ```ts title="ReactApp/vite.config.ts"
+   export default defineConfig({
+     plugins: [
+       react(),
+       ViteDotNetPlugin('src/main.tsx', 'root'),   // entrypoint, container element id
+     ],
+   })
+   ```
+
+   See [ViteDotNetPlugin](/reference/vite-plugin) for the full reference.
+
+3. **Simplify your backend configuration**
+
+   Replace the per-app configuration object with just the directory name(s). A v0-style object
+   isn't migrated — it is ignored, and the integration behaves as if nothing were configured:
+
+   ```json title="appsettings.Development.json"
+   { "ViteDotNet": "ReactApp" }
+   ```
+
+   ```json
+   { "ViteDotNet": [ "ReactApp", "SvelteApp" ] }
+   ```
+
+   See [Backend Configuration](/guides/backend-configuration).
+
+4. **Confirm the tag helpers**
+
+   They are `<dev-vite-scripts>` and `<prod-vite-scripts>`, selected by app directory name via
+   `app-name` (optional when only one app is configured):
+
+   ```razor
+   <dev-vite-scripts app-name="ReactApp" />
+   ```
+
+   Passing an `IntegrationConfig` object directly to a tag helper in a view is no longer
+   supported — the back end only needs the app's location now.
+
+5. **Rebuild**
+
+   Run the dev server (`npm run dev`) or a production build (`npm run build`) so the plugin writes
+   the new manifests into `wwwroot`; the back end reads them from there. Delete any stale build
+   output from the old layout first so old assets don't linger.
+
+</Steps>
+
+## If something doesn't render afterwards
+
+The symptoms are quiet rather than loud, because the back end isn't misconfigured so much as
+unconfigured — it stopped reading the settings you wrote:
+
+| Symptom | Cause |
+| --- | --- |
+| The page shows **"Vite Dev Server Not Found"** even though the dev server is running | No `manifest.dev.json` — the plugin is registered without its arguments, or the dev server hasn't been restarted since the upgrade. |
+| The page shows **"Production Bundle not found"** | No `manifest.prod.json` — the app hasn't been rebuilt since the upgrade, or the configured directory name doesn't match the folder in `wwwroot`. |
+| The tag helper throws when rendering | Nothing registered: the `ViteDotNet` section still holds a v0 config object, so no app directories were found. |
+| Your entrypoint, container id, or port changes have no effect | Those values now come from the manifests, not `appsettings.json`. Change them in `vite.config.ts` and re-run. |
+
+In each case the fix has the same shape: make sure the plugin has its arguments, the config holds
+the directory name, and the app has been run or built once so the manifests exist.
+
+## Where to read more
+
+<CardGrid>
+	<LinkCard
+		title="How It Works"
+		description="The manifest-driven design behind the change, end to end."
+		href="/guides/how-it-works"
+	/>
+	<LinkCard
+		title="Backend Configuration"
+		description="The simplified ViteDotNet section and the AddViteIntegration overloads."
+		href="/guides/backend-configuration"
+	/>
+</CardGrid>
+
+<Aside type="tip">
+Staying on v0 for now is fine — the previous documentation remains available at
+[tech-gems.gitbook.io/v0-vite-dotnet](https://tech-gems.gitbook.io/v0-vite-dotnet), also linked as
+**v0 Docs** in the site header.
+</Aside>

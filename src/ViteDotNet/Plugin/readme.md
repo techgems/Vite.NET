@@ -10,6 +10,8 @@ For all these reasons, this package is not meant to work on it's own, it is inst
 
 For better information on how to fully integrate it, visit our [official documentation](https://vite-dotnet.techgems.net/) site.
 
+> **Upgrading from v0?** v1 has breaking changes, but the upgrade is short: it removes nearly all backend configuration, since this plugin now emits manifests describing each app. A handful of edits, covered step by step in [Migrating from v0](https://vite-dotnet.techgems.net/introduction/migrating-from-v0/). Note that the npm plugin and the `TechGems.ViteDotNet` NuGet package share a version and must be upgraded together.
+
 ## Plugin configuration
 
 Add the plugin to your SPA's `vite.config.ts` alongside your framework plugin. It takes two arguments:

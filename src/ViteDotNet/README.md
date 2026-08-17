@@ -6,6 +6,8 @@
 
 Vite.NET bridges a Vite-powered front end (React, Svelte, Vue, Solid) and an ASP.NET Core back end. Your SPA lives inside your .NET app, so it inherits your authentication, layouts, and static-file pipeline — while Vite gives you a fast dev server, hot module replacement, and optimized production bundles.
 
+> **Upgrading from v0?** v1 has breaking changes, but the upgrade is short: it removes nearly all backend configuration, since the Vite plugin now emits manifests describing each app. A handful of edits, covered step by step in [Migrating from v0](https://vite-dotnet.techgems.net/introduction/migrating-from-v0/).
+
 ## Why Vite.NET
 
 - **One build tool** — Vite compiles your front end; ASP.NET Core serves it. No second server, no separate deployment.

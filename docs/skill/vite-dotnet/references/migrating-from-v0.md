@@ -1,10 +1,35 @@
 # Migrating from v0
 
-The v0 packages required more configuration and made the developer keep it synchronized with
-`vite.config.ts`. In the current release the Vite plugin **emits manifest files** describing each
-app, so the back end only needs to know where the app is.
+v1 is a breaking release, but a small one: the v0 packages required per-app backend configuration
+kept in sync with `vite.config.ts` by hand, and v1 removes it. The Vite plugin **emits manifest
+files** describing each app, so the back end only needs the app's directory name — the entrypoint,
+container id, dev-server port, and framework detection are no longer written anywhere by hand, and
+there is nothing left to keep in sync.
+
+A v0 project does need updating before it runs on v1, since the values the back end used to read
+from configuration are no longer read from there.
 
 The previous documentation remains at <https://tech-gems.gitbook.io/v0-vite-dotnet>.
+
+## What has to change
+
+1. **The `ViteDotNet` config section has a new shape** — a directory name or array of names, not a
+   per-app settings object. A v0-style object is ignored rather than migrated.
+2. **`ViteDotNetPlugin` takes two required arguments** — `entrypoint` and `containerElementId`,
+   the values that used to live in backend config.
+3. **Both packages must be upgraded together** — the manifests are the contract between them, so
+   mixed versions fail in either direction.
+4. **`IntegrationConfig` passed to a tag helper in a view was removed** — helpers are selected by
+   `app-name` only.
+
+### Diagnosing an unmigrated project
+
+| Symptom | Cause |
+| --- | --- |
+| "Vite Dev Server Not Found" while the dev server is running | No `manifest.dev.json`: plugin registered without arguments, or the dev server hasn't restarted since the upgrade. |
+| "Production Bundle not found" | No `manifest.prod.json`: not rebuilt since the upgrade, or the configured directory name doesn't match `wwwroot`. |
+| The tag helper throws when rendering | The `ViteDotNet` section still holds a v0 config object, so no app directories were registered. |
+| Entrypoint/container/port changes have no effect | Those values come from the manifests now, not `appsettings.json`. |
 
 ## What changed
 

@@ -17,7 +17,13 @@ hero:
       variant: minimal
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Aside, Card, CardGrid } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="Upgrading from v0?">
+v1 drops almost all backend configuration — the front end now describes itself through manifest
+files — so a v0 project needs a few changes before it runs. See
+[Migrating from v0](/introduction/migrating-from-v0).
+</Aside>
 
 ## Why Vite.NET
 
