@@ -3,8 +3,12 @@
   "type": "module",
   "version": "0.0.1",
   "scripts": {
+    "skill:zip": "node scripts/build-skill-zip.mjs",
+    "predev": "npm run skill:zip",
     "dev": "astro dev",
+    "prestart": "npm run skill:zip",
     "start": "astro dev",
+    "prebuild": "npm run skill:zip",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"

@@ -8,7 +8,9 @@ export default defineConfig({
 	site: 'https://vite-dotnet.techgems.net',
 	integrations: [
 		starlight({
-			plugins: [starlightLinksValidator()],
+			// The skill archive is a build artifact in `public/`, not a page, so the link
+			// validator can't resolve it.
+			plugins: [starlightLinksValidator({ exclude: ['/downloads/**'] })],
 			title: 'Vite.NET',
 			description:
 				'Integrate Vite SPAs with ASP.NET Core Razor Pages and MVC — a single build tool, shared authentication, and micro-frontends without leaving .NET.',
@@ -65,6 +67,7 @@ export default defineConfig({
 					label: 'Miscellaneous',
 					items: [
 						{ label: 'Migrating from v0', slug: 'miscellaneous/migrating-from-v0' },
+						{ label: 'Claude Skill', slug: 'miscellaneous/claude-skill' },
 					],
 				},
 			],

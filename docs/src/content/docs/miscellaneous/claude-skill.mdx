@@ -1,0 +1,88 @@
+---
+title: 'Claude Skill'
+description: Download the Vite.NET Claude Skill so Claude can set up, configure, and debug the integration for you.
+---
+
+import { Aside, Card, CardGrid, LinkButton, Steps, Tabs, TabItem, FileTree } from '@astrojs/starlight/components';
+
+These docs are also packaged as a **Claude Skill** — a folder of instructions Claude loads when
+it recognizes you're working on a Vite.NET integration.
+
+<LinkButton href="/downloads/vite-dotnet-skill.zip">Download the skill (.zip)</LinkButton>
+
+## Installing it
+
+<Tabs>
+  <TabItem label="Claude Code">
+    Unzip the folder into your skills directory — `.claude/skills/` inside a project to share it
+    with your team through version control, or `~/.claude/skills/` to have it everywhere:
+
+    <Steps>
+
+    1. **Extract the archive** so the skill sits in its own folder:
+
+       ```bash
+       unzip vite-dotnet-skill.zip -d ~/.claude/skills/
+       ```
+
+       On Windows PowerShell:
+
+       ```powershell
+       Expand-Archive vite-dotnet-skill.zip -DestinationPath $HOME\.claude\skills\
+       ```
+
+    2. **Restart Claude Code** (or start a new session) so it picks up the new skill.
+
+    3. **Check it loaded** by asking Claude to list its available skills — `vite-dotnet` should be
+       among them.
+
+    </Steps>
+  </TabItem>
+  <TabItem label="Claude apps">
+    In the Claude desktop or web app, open **Settings → Capabilities → Skills** and upload the
+    `.zip` as a custom skill. Claude then loads it automatically when a conversation involves
+    Vite.NET.
+
+    <Aside type="note">
+    Uploading custom skills requires an eligible plan and the Skills capability enabled for your
+    account or organization.
+    </Aside>
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="It's just markdown">
+A skill is a folder with a `SKILL.md` and supporting files. Read it, edit it, or trim it to your project's conventions.
+</Aside>
+
+## What's in the archive
+
+<FileTree>
+- vite-dotnet/
+  - SKILL.md              the overview Claude always reads
+  - references/
+    - setup.md            install walkthrough + per-framework configs
+    - plugin-and-manifests.md   the Vite plugin and both manifest schemas
+    - backend-api.md      AddViteIntegration and the tag helpers
+    - workflows.md        dev, production, publish, multiple SPAs
+    - without-npm.md      owning the integration without the npm package
+    - migrating-from-v0.md  the upgrade path
+    - troubleshooting.md  error messages and their real causes
+</FileTree>
+
+`SKILL.md` is the entry point; Claude opens a reference file only when the task calls for it, so
+the detail costs nothing until it's needed.
+
+## Using it
+
+Once installed, no special invocation is needed — describe the task and Claude applies the skill:
+
+- *"Add a Svelte SPA to this Razor Pages project with Vite.NET."*
+- *"My page shows 'Vite Dev Server Not Found' — what's wrong?"*
+- *"Migrate this project from Vite.NET v0 to the manifest-driven version."*
+- *"Set up a second SPA at `AdminApp` and render it on its own page."*
+
+## Keeping it current
+
+The skill is generated from this documentation and pinned to the same release, currently
+**1.0.0-beta**. When you upgrade the packages, download it again so Claude's instructions match
+the version you're on.

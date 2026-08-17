@@ -7,18 +7,27 @@ The documentation site for [Vite.NET](https://github.com/techgems/Vite.NET), bui
 
 All commands are run from the root of this `Docs` folder:
 
-| Command           | Action                                        |
-| :---------------- | :-------------------------------------------- |
-| `npm install`     | Installs dependencies                         |
-| `npm run dev`     | Starts the local dev server at `localhost:4321` |
-| `npm run build`   | Builds the production site to `./dist/`       |
-| `npm run preview` | Previews the build locally, before deploying  |
+| Command            | Action                                            |
+| :----------------- | :------------------------------------------------ |
+| `npm install`      | Installs dependencies                             |
+| `npm run dev`      | Starts the local dev server at `localhost:4321`    |
+| `npm run build`    | Builds the production site to `./dist/`           |
+| `npm run preview`  | Previews the build locally, before deploying      |
+| `npm run skill:zip`| Packages the Claude Skill into `public/downloads/` |
+
+`dev`, `start`, and `build` run `skill:zip` first, so the download is always in sync with the
+skill's source files.
 
 ## Structure
 
 ```
 Docs/
 ├── public/                     # static assets (favicon)
+│   └── downloads/              # generated: the Claude Skill zip (gitignored)
+├── scripts/
+│   └── build-skill-zip.mjs     # packages skill/vite-dotnet into public/downloads/
+├── skill/
+│   └── vite-dotnet/            # the Claude Skill source (SKILL.md + references/)
 ├── src/
 │   ├── assets/                 # images embedded in content
 │   ├── components/             # Starlight component overrides
