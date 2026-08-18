@@ -1,6 +1,6 @@
 {
   "name": "vite-dotnet",
-  "version": "1.0.0-rc",
+  "version": "1.0.0",
   "description": "Integration plugin for ASP.NET Core and ViteJS",
   "keywords": [
     "vite",
