@@ -1,6 +1,11 @@
 # Workflows
 
-Development, production builds, publish automation, and hosting several SPAs in one .NET app.
+Development, production builds, and hosting several SPAs in one .NET app.
+
+`{AppFolder}` (and `{OtherAppFolder}`, where two apps are shown) stands for a SPA's **actual
+directory name in the project you are working on** — read it from the `ViteDotNet` configuration
+section or the folder layout and substitute it everywhere below. Never run a command with the
+literal placeholder, and never assume a name like `ReactApp`.
 
 ## Development
 
@@ -10,12 +15,12 @@ together.
 
 ```bash
 # terminal 1
-cd ReactApp
+cd {AppFolder}
 npm run dev
 ```
 
-When the server begins listening, the plugin writes `wwwroot/ReactApp/manifest.dev.json` with the
-port, entrypoint, container id, and React flag.
+When the server begins listening, the plugin writes `wwwroot/{AppFolder}/manifest.dev.json`
+with the port, entrypoint, container id, and React flag.
 
 ```bash
 # terminal 2
@@ -51,8 +56,8 @@ whatever the dev server binds to — the plugin records it in `manifest.dev.json
 With more than one app configured, name the one to launch, calling it once per app:
 
 ```csharp
-app.RunViteDevServer("ReactApp");
-app.RunViteDevServer("SvelteApp");
+app.RunViteDevServer("{AppFolder}");
+app.RunViteDevServer("{OtherAppFolder}");
 ```
 
 Each call runs that app's `dev` npm script in its SPA folder. The command starts once the app is
@@ -66,19 +71,19 @@ serves built assets from `wwwroot` through `<prod-vite-scripts>`, with no dev se
 ## Production builds
 
 ```bash
-cd ReactApp
+cd {AppFolder}
 npm run build
 ```
 
 ```razor title="Pages/Index.cshtml"
-<prod-vite-scripts app-name="ReactApp" />
+<prod-vite-scripts app-name="{AppFolder}" />
 ```
 
-A build of `ReactApp` produces roughly:
+A build of `{AppFolder}` produces roughly:
 
 ```
 wwwroot/
-└── ReactApp/
+└── {AppFolder}/
     ├── main.[hash].js        the hashed JS bundle
     ├── main.[hash].css       the hashed CSS (if any)
     ├── manifest.json         Vite's manifest (source → hashed output)
@@ -103,18 +108,6 @@ rewritten automatically. A path hard-coded as a string in markup or JSX (e.g.
 `<img src="/logo.svg">`) is **not** rewritten: write `/{AppFolder}/logo.svg`, or import the asset
 so Vite handles the URL.
 
-### Automating the build during publish
-
-```xml title="YourApp.csproj"
-<Target Name="BuildReactApp" BeforeTargets="Publish">
-  <Exec Command="npm install" WorkingDirectory="ReactApp" />
-  <Exec Command="npm run build" WorkingDirectory="ReactApp" />
-</Target>
-```
-
-This ensures the hashed assets and `manifest.prod.json` exist in `wwwroot` before the app is
-packaged.
-
 ## Multiple SPAs
 
 One ASP.NET Core host can serve several integrated SPAs, each mounted into its own Razor page —
@@ -123,42 +116,42 @@ a micro-frontend architecture without a Node micro-service mesh. Every app is bu
 
 ```
 YourApp/
-├── ReactApp/
-│   └── vite.config.ts     ViteDotNetPlugin('src/main.tsx', 'root')
-├── SvelteApp/
-│   └── vite.config.ts     ViteDotNetPlugin('src/main.ts', 'app')
+├── {AppFolder}/            a React SPA, say
+│   └── vite.config.ts      ViteDotNetPlugin('src/main.tsx', 'root')
+├── {OtherAppFolder}/       a Svelte SPA, say
+│   └── vite.config.ts      ViteDotNetPlugin('src/main.ts', 'app')
 └── wwwroot/
-    ├── ReactApp/          ReactApp's build + manifests
-    └── SvelteApp/         SvelteApp's build + manifests
+    ├── {AppFolder}/        its build + manifests
+    └── {OtherAppFolder}/   its build + manifests
 ```
 
 Configuration lists every folder name:
 
 ```json title="appsettings.Development.json"
-{ "ViteDotNet": [ "ReactApp", "SvelteApp" ] }
+{ "ViteDotNet": [ "{AppFolder}", "{OtherAppFolder}" ] }
 ```
 
 ```csharp title="Program.cs"
-builder.Services.AddViteIntegration(new[] { "ReactApp", "SvelteApp" });
+builder.Services.AddViteIntegration(new[] { "{AppFolder}", "{OtherAppFolder}" });
 ```
 
 With more than one app configured, `app-name` is **required** — omitting it throws. Each page
 renders one app:
 
-```razor title="Pages/React.cshtml"
-<dev-vite-scripts app-name="ReactApp" />
+```razor title="Pages/FirstApp.cshtml"
+<dev-vite-scripts app-name="{AppFolder}" />
 ```
 
-```razor title="Pages/Svelte.cshtml"
-<dev-vite-scripts app-name="SvelteApp" />
+```razor title="Pages/SecondApp.cshtml"
+<dev-vite-scripts app-name="{OtherAppFolder}" />
 ```
 
 In development each SPA runs its own dev server, each writing its own `manifest.dev.json` under
-its `wwwroot/{AppFolder}/`:
+its own folder in `wwwroot/`:
 
 ```bash
-cd ReactApp && npm run dev     # terminal 1
-cd SvelteApp && npm run dev    # terminal 2
+cd {AppFolder} && npm run dev        # terminal 1
+cd {OtherAppFolder} && npm run dev   # terminal 2
 ```
 
 Give each dev server a distinct port (via its Vite config or its `dev` script) so they don't
@@ -169,6 +162,6 @@ Build each app separately; because they are isolated by folder they never clash,
 can be mixed — React on one page, Svelte on another — in the same host:
 
 ```bash
-cd ReactApp && npm run build
-cd ../SvelteApp && npm run build
+cd {AppFolder} && npm run build
+cd ../{OtherAppFolder} && npm run build
 ```

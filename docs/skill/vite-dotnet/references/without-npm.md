@@ -89,9 +89,6 @@ export default defineConfig(({ command }) => {
 Notes and differences from the packaged plugin:
 
 - `isReact` is stated by hand here rather than detected from the resolved plugin list.
-- The dev manifest is written at config time, so its `port` field is omitted — the back end falls
-  back to `5173`. Pass an explicit `server.port` and include it in the manifest if the dev server
-  runs elsewhere.
 - `server.ws` is the Vite 8+ key; on Vite 7 and earlier use `server.hmr: { protocol: 'ws' }`.
 - The prod manifest is written from `closeBundle` because `emptyOutDir` clears the folder during
   the build.

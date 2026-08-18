@@ -8,10 +8,15 @@
 // The archive is written by hand with `zlib` rather than a packaging dependency: a zip is a
 // handful of well-documented record structures, and this keeps the docs site dependency-free.
 // Entries are stamped with a fixed timestamp so identical inputs produce an identical file.
+//
+// Package versions in the skill are written as `{{NUGET_VERSION}}` / `{{NPM_VERSION}}` and
+// substituted here from `docs/.env`, the same source the site reads — so the skill Claude
+// installs always quotes the released versions.
 import { deflateRawSync } from 'node:zlib';
 import { readdirSync, readFileSync, mkdirSync, writeFileSync, statSync } from 'node:fs';
 import { join, relative, dirname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { nugetVersion, npmVersion } from './versions.mjs';
 
 const docsRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
 const skillRoot = join(docsRoot, 'skill');
@@ -37,6 +42,22 @@ function crc32(buffer) {
 	let crc = -1;
 	for (let i = 0; i < buffer.length; i++) crc = crcTable[(crc ^ buffer[i]) & 0xff] ^ (crc >>> 8);
 	return (crc ^ -1) >>> 0;
+}
+
+const VERSION_PLACEHOLDERS = {
+	'{{NUGET_VERSION}}': nugetVersion,
+	'{{NPM_VERSION}}': npmVersion,
+};
+
+// Skill sources are markdown, so placeholders are substituted on the decoded text. Returns the
+// original buffer untouched when a file contains none.
+function renderVersions(contents) {
+	const text = contents.toString('utf8');
+	const rendered = text.replace(
+		/\{\{(?:NUGET|NPM)_VERSION\}\}/g,
+		(token) => VERSION_PLACEHOLDERS[token]
+	);
+	return rendered === text ? contents : Buffer.from(rendered, 'utf8');
 }
 
 function filesUnder(dir) {
@@ -107,7 +128,7 @@ function buildZip(files) {
 	let offset = 0;
 
 	for (const file of files) {
-		const contents = readFileSync(file);
+		const contents = renderVersions(readFileSync(file));
 		// Zip paths always use forward slashes, and stay relative to the skill folder so the
 		// archive extracts as `vite-dotnet/SKILL.md`.
 		const name = Buffer.from(relative(skillRoot, file).split(sep).join('/'), 'utf8');

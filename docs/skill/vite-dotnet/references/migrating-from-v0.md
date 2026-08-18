@@ -41,17 +41,17 @@ The previous documentation remains at <https://tech-gems.gitbook.io/v0-vite-dotn
 
 ## Upgrade steps
 
-### 1. Update both packages to 1.0.0-beta
+### 1. Update both packages to v1
 
-It is a prerelease, so the version must be explicit (or `--prerelease`) — otherwise NuGet keeps
-you on v0:
+NuGet is at `{{NUGET_VERSION}}` and npm at `{{NPM_VERSION}}`. Both are prereleases, so the version
+must be explicit (or `--prerelease`) — otherwise NuGet keeps you on v0:
 
 ```bash
-dotnet add package TechGems.ViteDotNet --version 1.0.0-beta
+dotnet add package TechGems.ViteDotNet --version {{NUGET_VERSION}}
 ```
 
 ```bash
-cd ReactApp && npm install vite-dotnet@1.0.0-beta
+cd ReactApp && npm install vite-dotnet@{{NPM_VERSION}}
 ```
 
 ### 2. Add the plugin arguments

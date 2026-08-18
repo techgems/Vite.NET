@@ -4,6 +4,8 @@ description: Add the Vite.NET NuGet package and Vite plugin to an existing ASP.N
 ---
 
 import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Code } from 'astro:components';
+import { nugetVersion, npmVersion } from '../../../versions';
 
 Vite.NET has two halves: a NuGet package for your ASP.NET Core app, and a Vite plugin for your
 SPA. This page installs both. If you are starting from scratch, the [Quick Start](/introduction/quick-start)
@@ -20,18 +22,14 @@ folder inside it (for example `ReactApp/`, created with `npm create vite@latest`
 
 1. **Add the package to your ASP.NET Core project**
 
-   The current release is **1.0.0-beta**. Because it is a prerelease, pass the version explicitly
-   (or `--prerelease`) so NuGet does not skip it:
+   The current release is **{nugetVersion}**. Because it is a prerelease, pass the version
+   explicitly (or `--prerelease`) so NuGet does not skip it:
 
-   ```bash
-   dotnet add package TechGems.ViteDotNet --version 1.0.0-beta
-   ```
+   <Code lang="bash" code={`dotnet add package TechGems.ViteDotNet --version ${nugetVersion}`} />
 
    Or, editing the `.csproj` directly:
 
-   ```xml
-   <PackageReference Include="TechGems.ViteDotNet" Version="1.0.0-beta" />
-   ```
+   <Code lang="xml" code={`<PackageReference Include="TechGems.ViteDotNet" Version="${nugetVersion}" />`} />
 
 2. **Register the integration in `Program.cs`**
 
@@ -59,13 +57,11 @@ folder inside it (for example `ReactApp/`, created with `npm create vite@latest`
 
 1. **Add the plugin to your SPA folder**
 
-   From inside your SPA directory (e.g. `ReactApp/`). The plugin tracks the NuGet package
-   version, so install **1.0.0-beta** here too — as a prerelease it is not picked up by a
-   plain `npm install vite-dotnet`:
+   From inside your SPA directory (e.g. `ReactApp/`). The plugin has its own release track, so
+   install **{npmVersion}** here — as a prerelease it is not picked up by a plain
+   `npm install vite-dotnet`:
 
-   ```bash
-   npm install vite-dotnet@1.0.0-beta
-   ```
+   <Code lang="bash" code={`npm install vite-dotnet@${npmVersion}`} />
 
 2. **Register it in `vite.config.ts`**
 

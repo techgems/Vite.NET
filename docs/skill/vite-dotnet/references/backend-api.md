@@ -52,15 +52,6 @@ builder.Services.AddViteIntegration("ReactApp");
 builder.Services.AddViteIntegration(new[] { "ReactApp", "SvelteApp" });
 ```
 
-It registers the services the tag helpers depend on, all singletons:
-
-- `IViteConfigService` — resolves which app directory a tag helper should use.
-- `IManifestExtractor` — reads Vite's production `manifest.json`.
-- `IDevManifestExtractor` / `IDevManifestCache` — read `manifest.dev.json`.
-- `IProdManifestExtractor` / `IProdManifestCache` — read `manifest.prod.json`.
-
-These are consumed by the tag helpers; application code does not interact with them directly.
-
 ## Registering the tag helpers
 
 The tag helpers live in the `ViteDotNet` assembly. Register them in `_ViewImports.cshtml` — the
@@ -103,15 +94,15 @@ Reads `manifest.dev.json` and renders:
 - A fallback: if the entrypoint can't be fetched within the retry window, the container contents
   are replaced with a **"Vite Dev Server Not Found"** message.
 
-Resolved values (defaults apply when the manifest is absent because the dev server hasn't
-started):
+Resolved from the dev manifest, falling back to defaults if it is absent because the dev server
+hasn't started:
 
-| Property | Source | Default |
-| --- | --- | --- |
-| `Port` | `manifest.dev.json` → `port` | `5173` |
-| `Entrypoint` | `manifest.dev.json` → `entrypoint` | `""` |
-| `ContainerElementId` | `manifest.dev.json` → `containerElementId` | `"app"` |
-| `IsReact` | `manifest.dev.json` → `isReact` | `false` |
+| Property | Source |
+| --- | --- |
+| `Port` | `manifest.dev.json` → `port` |
+| `Entrypoint` | `manifest.dev.json` → `entrypoint` |
+| `ContainerElementId` | `manifest.dev.json` → `containerElementId` |
+| `IsReact` | `manifest.dev.json` → `isReact` |
 
 `AppDirectory` is resolved from `app-name` (or the single configured app) via
 `IViteConfigService`.

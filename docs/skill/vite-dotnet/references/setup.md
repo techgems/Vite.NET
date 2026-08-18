@@ -25,17 +25,17 @@ YourApp/
 
 ## 1. NuGet package
 
-The current release is `1.0.0-beta`. Because it is a prerelease, pass the version explicitly
-(or `--prerelease`) so NuGet does not skip it:
+The current release is `{{NUGET_VERSION}}`. Because it is a prerelease, pass the version
+explicitly (or `--prerelease`) so NuGet does not skip it:
 
 ```bash
-dotnet add package TechGems.ViteDotNet --version 1.0.0-beta
+dotnet add package TechGems.ViteDotNet --version {{NUGET_VERSION}}
 ```
 
 Or in the `.csproj`:
 
 ```xml
-<PackageReference Include="TechGems.ViteDotNet" Version="1.0.0-beta" />
+<PackageReference Include="TechGems.ViteDotNet" Version="{{NUGET_VERSION}}" />
 ```
 
 Register the integration in `Program.cs`:
@@ -59,11 +59,11 @@ for MVC:
 
 ## 2. Vite plugin
 
-From inside the SPA directory. The plugin tracks the NuGet package version, so it is a
-prerelease here too and needs the explicit version:
+From inside the SPA directory. The plugin has its own release track — currently
+`{{NPM_VERSION}}` — and as a prerelease it needs the explicit version:
 
 ```bash
-npm install vite-dotnet@1.0.0-beta
+npm install vite-dotnet@{{NPM_VERSION}}
 ```
 
 Register it **after** the framework plugin, passing the entrypoint and the id of the element the

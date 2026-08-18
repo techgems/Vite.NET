@@ -4,6 +4,8 @@ description: Upgrading an existing Vite.NET project to v1, where the plugin emit
 ---
 
 import { Aside, Steps, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { Code } from 'astro:components';
+import { nugetVersion, npmVersion } from '../../../versions';
 
 v1 has breaking changes, so an existing v0 project needs a few updates before it runs. They are
 small, and they exist for a good reason: v1 removes nearly all of the backend configuration v0
@@ -48,20 +50,17 @@ read from there, which is what makes the upgrade a breaking one.
 
 1. **Update both packages**
 
-   `TechGems.ViteDotNet` (NuGet) and `vite-dotnet` (npm) share a version, and the manifests are
-   the contract between them — so they must move together. A v0 plugin emits no manifests for a v1
-   back end to read, and a v1 plugin's manifests mean nothing to a v0 back end.
+   The manifests are the contract between `TechGems.ViteDotNet` (NuGet) and `vite-dotnet` (npm),
+   so the two must move to v1 together. A v0 plugin emits no manifests for a v1 back end to read,
+   and a v1 plugin's manifests mean nothing to a v0 back end.
 
-   The current release is **1.0.0-beta**. As a prerelease the version has to be given explicitly
-   (or `--prerelease`), otherwise NuGet keeps you on v0:
+   The current releases are **{nugetVersion}** on NuGet and **{npmVersion}** on npm. As
+   prereleases the version has to be given explicitly (or `--prerelease`), otherwise NuGet keeps
+   you on v0:
 
-   ```bash
-   dotnet add package TechGems.ViteDotNet --version 1.0.0-beta
-   ```
+   <Code lang="bash" code={`dotnet add package TechGems.ViteDotNet --version ${nugetVersion}`} />
 
-   ```bash
-   cd ReactApp && npm install vite-dotnet@1.0.0-beta
-   ```
+   <Code lang="bash" code={`cd ReactApp && npm install vite-dotnet@${npmVersion}`} />
 
 2. **Pass the entrypoint and container id to the plugin**
 

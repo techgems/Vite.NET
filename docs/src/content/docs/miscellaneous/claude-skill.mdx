@@ -4,6 +4,7 @@ description: Download the Vite.NET Claude Skill so Claude can set up, configure,
 ---
 
 import { Aside, Card, CardGrid, LinkButton, Steps, Tabs, TabItem, FileTree } from '@astrojs/starlight/components';
+import { nugetVersion, npmVersion } from '../../../versions';
 
 These docs are also packaged as a **Claude Skill** — a folder of instructions Claude loads when
 it recognizes you're working on a Vite.NET integration.
@@ -63,7 +64,7 @@ A skill is a folder with a `SKILL.md` and supporting files. Read it, edit it, or
     - setup.md            install walkthrough + per-framework configs
     - plugin-and-manifests.md   the Vite plugin and both manifest schemas
     - backend-api.md      AddViteIntegration and the tag helpers
-    - workflows.md        dev, production, publish, multiple SPAs
+    - workflows.md        dev, production, multiple SPAs
     - without-npm.md      owning the integration without the npm package
     - migrating-from-v0.md  the upgrade path
     - troubleshooting.md  error messages and their real causes
@@ -83,6 +84,6 @@ Once installed, no special invocation is needed — describe the task and Claude
 
 ## Keeping it current
 
-The skill is generated from this documentation and pinned to the same release, currently
-**1.0.0-beta**. When you upgrade the packages, download it again so Claude's instructions match
-the version you're on.
+The skill is generated from this documentation and pinned to the same releases, currently
+**{nugetVersion}** (NuGet) and **{npmVersion}** (npm). When you upgrade the packages, download it
+again so Claude's instructions match the versions you're on.

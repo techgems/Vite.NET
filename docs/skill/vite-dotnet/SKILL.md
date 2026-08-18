@@ -36,8 +36,9 @@ that is the v0 design and it no longer works.
 | `TechGems.ViteDotNet` (NuGet) | the ASP.NET Core project | `AddViteIntegration` + the tag helpers |
 | `vite-dotnet` (npm) | the SPA folder inside that project | Vite plugin: shapes the build, emits manifests |
 
-Current release: **1.0.0-beta**. It is a prerelease, so the version must be explicit in both
-package managers — a plain `dotnet add package` / `npm install` will skip it.
+Current releases: **{{NUGET_VERSION}}** (NuGet) and **{{NPM_VERSION}}** (npm). Both are
+prereleases, so the version must be explicit in both package managers — a plain
+`dotnet add package` / `npm install` will skip it.
 
 ## Minimal working setup
 
@@ -47,7 +48,7 @@ output goes to `YourApp/wwwroot/ReactApp/`.
 1. **NuGet package + registration**
 
    ```bash
-   dotnet add package TechGems.ViteDotNet --version 1.0.0-beta
+   dotnet add package TechGems.ViteDotNet --version {{NUGET_VERSION}}
    ```
 
    ```csharp title="Program.cs"
@@ -67,7 +68,7 @@ output goes to `YourApp/wwwroot/ReactApp/`.
 3. **Vite plugin**, from inside the SPA folder:
 
    ```bash
-   npm install vite-dotnet@1.0.0-beta
+   npm install vite-dotnet@{{NPM_VERSION}}
    ```
 
    ```ts title="ReactApp/vite.config.ts"
@@ -134,7 +135,7 @@ Read the relevant file before answering in depth; do not guess at APIs.
 | `references/setup.md` | Full install walkthrough, project layout, per-framework configs |
 | `references/plugin-and-manifests.md` | `ViteDotNetPlugin` reference, everything it configures/derives, both manifest schemas |
 | `references/backend-api.md` | `AddViteIntegration` overloads, the `ViteDotNet` config section, both tag helpers in detail |
-| `references/workflows.md` | Dev workflow + `RunViteDevServer`, production builds, publish automation, multiple SPAs |
+| `references/workflows.md` | Dev workflow + `RunViteDevServer`, production builds, multiple SPAs |
 | `references/without-npm.md` | Replacing the npm plugin with your own `vite.config.ts` helpers |
 | `references/migrating-from-v0.md` | What changed from v0 and the upgrade steps |
 | `references/troubleshooting.md` | The built-in error messages and what actually causes them |

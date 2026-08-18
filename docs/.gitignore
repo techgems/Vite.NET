@@ -15,7 +15,9 @@ yarn-error.log*
 pnpm-debug.log*
 
 # environment variables
-.env
+# `.env` is committed on purpose — it only holds the published package versions, which every
+# build needs. Machine-local overrides stay out of the repository.
+.env.local
 .env.production
 
 # macOS-specific files
