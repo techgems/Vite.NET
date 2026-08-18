@@ -78,21 +78,6 @@ message. That means either the SPA hasn't been built, or the configured app dire
 match the folder in `wwwroot`. Run `npm run build` and confirm the `ViteDotNet` config value.
 </Aside>
 
-## Automating the build in publish
-
-To build the SPA as part of `dotnet publish`, add an MSBuild target that runs the Vite build. For
-example:
-
-```xml title="YourApp.csproj"
-<Target Name="BuildReactApp" BeforeTargets="Publish">
-  <Exec Command="npm install" WorkingDirectory="ReactApp" />
-  <Exec Command="npm run build" WorkingDirectory="ReactApp" />
-</Target>
-```
-
-This ensures the hashed assets and `manifest.prod.json` exist in `wwwroot` before your app is
-packaged.
-
 ## Switching helpers per environment
 
 See [Rendering a SPA](/guides/rendering-a-spa#choosing-between-them) for the pattern of branching
