@@ -44,8 +44,8 @@ instead — a hint that the SPA hasn't been built or the configured directory na
 | `ContainerElementId` | `manifest.prod.json` → `containerElementId` (default `"app"`). |
 
 <Aside type="caution">
-Ensure `app.UseStaticFiles()` is in your pipeline — the emitted tags reference assets served from
-`wwwroot`.
+Ensure `app.MapStaticAssets()` or `app.UseStaticFiles()` is in your pipeline — the emitted tags
+reference assets served from `wwwroot`. Either one works; one of them must always be called.
 </Aside>
 
 ## Requirements

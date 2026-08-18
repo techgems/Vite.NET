@@ -38,12 +38,12 @@ dev server, giving you hot module replacement inside a Razor page. Reads
 The helper resolves these from the dev manifest (falling back to defaults if the manifest is absent
 because the dev server hasn't started):
 
-| Property | Source | Default |
+| Property | Source |
 | --- | --- | --- |
-| `Port` | `manifest.dev.json` → `port` | `5173` |
-| `Entrypoint` | `manifest.dev.json` → `entrypoint` | `""` |
-| `ContainerElementId` | `manifest.dev.json` → `containerElementId` | `"app"` |
-| `IsReact` | `manifest.dev.json` → `isReact` | `false` |
+| `Port` | `manifest.dev.json` → `port` |
+| `Entrypoint` | `manifest.dev.json` → `entrypoint` |
+| `ContainerElementId` | `manifest.dev.json` → `containerElementId` |
+| `IsReact` | `manifest.dev.json` → `isReact` |
 
 <Aside type="note">
 `AppDirectory` is resolved from `app-name` (or the single configured app) via `IViteConfigService`.

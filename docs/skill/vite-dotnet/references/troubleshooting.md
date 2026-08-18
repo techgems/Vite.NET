@@ -43,10 +43,9 @@ The tag helpers are not registered. Add to `_ViewImports.cshtml` in `Pages` (Raz
 
 ## The SPA mounts in development but not in production
 
-- Is `app.UseStaticFiles()` in the pipeline? The production tags reference plain static files
-  under `wwwroot`.
-- Did the build actually run for the deployed artifact? Automate it with an MSBuild target
-  `BeforeTargets="Publish"` (see `workflows.md`).
+- Is `app.MapStaticAssets()` or `app.UseStaticFiles()` in the pipeline? Either one works, but one
+  of them must be there — the production tags reference plain static files under `wwwroot`.
+- Did the build actually run for the deployed artifact?
 - Is the page still using `<dev-vite-scripts>`? Branch on `IWebHostEnvironment`.
 
 ## React HMR doesn't work / "Refresh runtime not loaded"

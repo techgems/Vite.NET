@@ -143,7 +143,8 @@ Read the relevant file before answering in depth; do not guess at APIs.
 
 - Keep `entrypoint` and `containerElementId` in `vite.config.ts` only — one source of truth.
 - One app per folder; each builds into its own `wwwroot/{AppFolder}/`, so several SPAs coexist.
-- `app.UseStaticFiles()` must be in the pipeline — production assets are plain static files.
+- `app.MapStaticAssets()` or `app.UseStaticFiles()` must be in the pipeline — either works, but one
+  of them is always required, because production assets are plain static files.
 - Hard-coded asset URLs in markup/JSX are not rewritten by Vite: write `/{AppFolder}/logo.svg`
   or import the asset.
 - `RunViteDevServer()` is development-only; never call it in production.

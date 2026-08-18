@@ -88,17 +88,3 @@ The `IConfiguration` overload reads this section, accepting either form:
 
 If the section is missing or empty, no directories are registered and the tag helpers will throw
 when used. See [Backend Configuration](/guides/backend-configuration).
-
-## What it registers
-
-The call wires up the services the tag helpers depend on (all singletons):
-
-- `IViteConfigService` — resolves which app directory a tag helper should use.
-- `IManifestExtractor` — reads Vite's production `manifest.json`.
-- `IDevManifestExtractor` / `IDevManifestCache` — read `manifest.dev.json`.
-- `IProdManifestExtractor` / `IProdManifestCache` — read `manifest.prod.json`.
-
-<Aside type="note">
-You don't interact with these services directly — the [`dev-vite-scripts`](/reference/dev-vite-scripts)
-and [`prod-vite-scripts`](/reference/prod-vite-scripts) tag helpers consume them for you.
-</Aside>

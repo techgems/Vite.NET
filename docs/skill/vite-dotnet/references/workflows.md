@@ -91,7 +91,8 @@ wwwroot/
   React flag.
 
 `<prod-vite-scripts>` reads both. Because the assets live in `wwwroot`, they are served by
-ASP.NET Core's static-files middleware — `app.UseStaticFiles()` must be in the pipeline.
+ASP.NET Core's static-files middleware — `app.MapStaticAssets()` or `app.UseStaticFiles()` must be
+in the pipeline. Either works for the library, but one of them always has to be called.
 
 ### Files in `public/`
 

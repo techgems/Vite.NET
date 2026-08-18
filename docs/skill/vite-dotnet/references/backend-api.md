@@ -150,7 +150,8 @@ instead.
 | `ContainerElementId` | `manifest.prod.json` → `containerElementId` (default `"app"`). |
 
 Requirements: the integration and tag helpers registered, the SPA built (`npm run build`), and
-`app.UseStaticFiles()` in the pipeline — the emitted tags reference assets served from `wwwroot`.
+`app.MapStaticAssets()` or `app.UseStaticFiles()` in the pipeline — either works, but one of them
+must always be called.
 
 ## Switching per environment
 

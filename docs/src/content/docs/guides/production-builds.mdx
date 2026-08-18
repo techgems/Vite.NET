@@ -69,7 +69,8 @@ For a built app, the helper emits:
 ```
 
 Because the assets live in `wwwroot`, they're served by ASP.NET Core's static-files middleware —
-make sure `app.UseStaticFiles()` is in your pipeline.
+make sure `app.MapStaticAssets()` or `app.UseStaticFiles()` is in your pipeline. Either one works
+for Vite.NET, but one of them must always be called.
 
 <Aside type="caution" title="Build before you run in production">
 If `<prod-vite-scripts>` can't find `manifest.prod.json` it renders a "Production Bundle not found"
